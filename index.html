@@ -46,25 +46,33 @@ a.brand:hover{text-decoration:none;opacity:.62}
 :root[data-theme="dark"] .t-ico::before{content:"☀"}
 .topbar.minimal{border-bottom:none}
 
-/* splash / home — one card per channel, sized to fit a single viewport */
-.wrap.splash{min-height:100dvh;display:flex;flex-direction:column;padding-bottom:0}
-.splash-cards{flex:1;display:grid;grid-template-columns:repeat(3,1fr);gap:16px;
-  align-content:center;padding:12px 0 40px}
-.scard{display:flex;flex-direction:column;gap:7px;padding:22px 20px;min-height:160px;
-  border:1px solid var(--line);border-radius:16px;background:var(--card);color:var(--ink);
+/* splash / home — three long full-width cards stacked vertically, filling one viewport
+   (no scroll on desktop). Card: channel name + date on the left, full headline on the right. */
+.wrap.splash{height:100dvh;display:flex;flex-direction:column;padding-bottom:0;overflow:hidden}
+.splash-cards{flex:1;min-height:0;display:grid;grid-template-columns:1fr;
+  grid-template-rows:repeat(3,1fr);gap:14px;padding:8px 0 10px}
+.scard{display:flex;align-items:center;gap:26px;min-height:0;padding:22px 28px;
+  border:1px solid var(--line);border-radius:16px;overflow:hidden;
+  background:var(--card);color:var(--ink);
   transition:border-color .15s ease,transform .15s ease,box-shadow .15s ease}
-.scard:hover{border-color:var(--faint);transform:translateY(-3px);text-decoration:none;
+.scard:hover{border-color:var(--faint);transform:translateY(-2px);text-decoration:none;
   box-shadow:0 12px 30px rgba(20,18,14,.09)}
 :root[data-theme="dark"] .scard:hover{box-shadow:0 12px 30px rgba(0,0,0,.4)}
-.scard .s-name{font-weight:700;font-size:19px;letter-spacing:.2px}
-.scard .s-date{color:var(--muted);font-size:13px;font-weight:500}
-.scard .s-head{color:var(--ink);font:400 15px/1.45 var(--serif);margin-top:5px;
-  display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.scard .s-meta{flex:0 0 190px;display:flex;flex-direction:column;gap:3px}
+.scard .s-name{font-weight:700;font-size:21px;letter-spacing:.2px}
+.scard .s-date{color:var(--muted);font-size:13.5px;font-weight:500}
+.scard .s-head{flex:1;font:400 22px/1.35 var(--serif);color:var(--ink)}
 .scard-empty{opacity:.55;cursor:default}
+.splash-foot{display:flex;justify-content:flex-end;padding:6px 0 14px;flex:0 0 auto}
+.whatis{border:1px solid var(--line);background:var(--card);color:var(--muted);
+  font:500 13px var(--sans);padding:7px 13px;border-radius:9px;cursor:pointer}
+.whatis:hover{color:var(--ink);border-color:var(--faint)}
 @media(max-width:640px){
-  .splash-cards{grid-template-columns:1fr;gap:12px;padding:8px 0 24px}
-  .scard{min-height:0;padding:16px 18px}
-  .scard .s-head{-webkit-line-clamp:2}
+  .wrap.splash{height:auto;min-height:100dvh;overflow:visible}
+  .splash-cards{grid-template-rows:none;grid-auto-rows:auto;gap:12px;padding:6px 0 10px}
+  .scard{flex-direction:column;align-items:flex-start;gap:10px;padding:18px}
+  .scard .s-meta{flex:none}
+  .scard .s-head{font-size:19px}
 }
 
 /* filters */
@@ -345,13 +353,15 @@ function renderSplash() {
     const d = c.days[0];               // days are sorted newest-first in init()
     if (!d) {
       return `<div class="scard scard-empty">
-          <span class="s-name">${esc(c.label)}</span>
-          <span class="s-date">No editions yet</span></div>`;
+          <div class="s-meta"><span class="s-name">${esc(c.label)}</span>
+          <span class="s-date">No editions yet</span></div></div>`;
     }
     return `<a class="scard" href="#/${c.key}/${d.id}">
-        <span class="s-name">${esc(c.label)}</span>
-        <span class="s-date">${esc(splashDateLabel(d))}</span>
-        <span class="s-head">${esc(d.headline)}</span>
+        <div class="s-meta">
+          <span class="s-name">${esc(c.label)}</span>
+          <span class="s-date">${esc(splashDateLabel(d))}</span>
+        </div>
+        <div class="s-head">${esc(d.headline)}</div>
       </a>`;
   }).join('');
 
@@ -359,9 +369,30 @@ function renderSplash() {
     <div class="wrap splash">
       ${topbar({ minimal: true })}
       <main class="splash-cards">${cards}</main>
+      <footer class="splash-foot">
+        <button class="whatis" data-whatis>What is this?</button>
+      </footer>
     </div>`;
 
   wireTopbar();
+  const wi = document.querySelector('#app [data-whatis]');
+  if (wi) wi.addEventListener('click', openWhatIs);
+}
+
+/* "What is this?" reuses the citation zoom drawer (slide-in from the right + scrim).
+   Title only, no "open original" link; closing is the drawer's existing wiring. */
+function openWhatIs() {
+  const tag = document.querySelector('#drawer .drawer-tag');
+  if (tag) tag.textContent = 'What is this?';
+  const src = document.getElementById('drawerSource');
+  if (src) src.style.display = 'none';
+  document.getElementById('drawerBody').innerHTML =
+    '<p>Alpha Funnel is a twice-daily read for people who take markets seriously but do not have all day to watch them. Every morning and evening it ships three briefings. Investing, News, and AI &amp; Tools.</p>' +
+    '<p>The job is simple. Take the flood of the day, rank what actually matters, name the tickers, levels, and people, and say out loud what is just noise. It is written for a long-term investor who also swing trades, so the lens is durable trends and multi-day setups, not intraday chop.</p>' +
+    '<p>Opinionated on purpose. Read it here, or subscribe to any channel by RSS.</p>';
+  elDrawer().classList.add('open'); elDrawer().setAttribute('aria-hidden', 'false');
+  elScrim().hidden = false;
+  document.getElementById('drawerBody').scrollTop = 0;
 }
 
 /* ---------- list view ---------- */
@@ -536,7 +567,11 @@ function enhance(scope) {
 /* ---------- deep-dive drawer ---------- */
 
 async function openDrawer(id, href) {
-  document.getElementById('drawerSource').href = href;
+  const tag = document.querySelector('#drawer .drawer-tag');
+  if (tag) tag.textContent = 'Zoom-in';        // restore (openWhatIs may have changed it)
+  const src = document.getElementById('drawerSource');
+  src.style.display = '';
+  src.href = href;
   const body = document.getElementById('drawerBody');
   body.innerHTML = '<p class="empty">Loading deep-dive…</p>';
   elDrawer().classList.add('open'); elDrawer().setAttribute('aria-hidden', 'false');
