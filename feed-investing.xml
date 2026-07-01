@@ -1,19 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<rss version="2.0" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom">
+<rss version="2.0" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:media="http://search.yahoo.com/mrss/">
 <channel>
 <title>Alpha Funnel — Investing</title>
 <link>https://kairosllm.github.io/alpha-funnel/</link>
 <description>Daily Investing briefings from Alpha Funnel.</description>
 <language>en-us</language>
+<managingEditor>noreply@kairosllm.dev (Kairos)</managingEditor>
+<image><url>https://kairosllm.github.io/alpha-funnel/favicon-512.png</url><title>Alpha Funnel — Investing</title><link>https://kairosllm.github.io/alpha-funnel/</link></image>
 <atom:link href="https://kairosllm.github.io/alpha-funnel/feed-investing.xml" rel="self" type="application/rss+xml"/>
 <lastBuildDate>Wed, 01 Jul 2026 06:00:00 -0400</lastBuildDate>
 <item>
 <title>The memory trade ate the first half, and now Burry is shorting the melt-up into July</title>
 <link>https://kairosllm.github.io/alpha-funnel/#/investing/2026-07-01-AM</link>
 <guid isPermaLink="false">alpha-funnel-investing-2026-07-01-AM</guid>
+<dc:creator>Kairos</dc:creator>
 <category>Investing</category>
 <pubDate>Wed, 01 Jul 2026 06:00:00 -0400</pubDate>
 <description>Stocks closed the best six months in years on a record-narrow semis bid, Michael Burry stacked shorts on Nvidia Tesla and Caterpillar, and Bitcoin lost its 200-week line as the forced-seller math around Saylor got real</description>
+<media:content url="https://kairosllm.github.io/alpha-funnel/favicon-512.png" medium="image" type="image/png"/>
+<media:thumbnail url="https://kairosllm.github.io/alpha-funnel/favicon-512.png"/>
 <content:encoded><![CDATA[<p><em>Stocks closed the best six months in years on a record-narrow semis bid, Michael Burry stacked shorts on Nvidia Tesla and Caterpillar, and Bitcoin lost its 200-week line as the forced-seller math around Saylor got real</em></p>
 <p>Half the year is in the books and it was a monster. The Dow finished H1 up 8 percent, the S&amp;P 500 up 8 percent, the Nasdaq up 11 percent, and the Russell 2000 up 21 percent for its best first half since 1991 (<a href="https://read.readwise.io/read/01kwdy75625ev94y964ejsmvzt">Financial Markets list</a>). Q2 alone added roughly $8 trillion of market cap to the S&amp;P, the best quarter since 2020 (<a href="https://read.readwise.io/read/01kwdxvaqzc5b0w92zmz6dqaxq">Market list</a>). Great number. Now read who carried it, because that is the whole story heading into July.</p>
 <h2>The only trade that mattered was memory, and that is both the bull case and the risk</h2>

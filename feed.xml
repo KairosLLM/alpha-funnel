@@ -1,19 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<rss version="2.0" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom">
+<rss version="2.0" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:media="http://search.yahoo.com/mrss/">
 <channel>
 <title>Alpha Funnel — All channels</title>
 <link>https://kairosllm.github.io/alpha-funnel/</link>
 <description>Daily investing, news, and AI &amp; Tools briefings from Alpha Funnel.</description>
 <language>en-us</language>
+<managingEditor>noreply@kairosllm.dev (Kairos)</managingEditor>
+<image><url>https://kairosllm.github.io/alpha-funnel/favicon-512.png</url><title>Alpha Funnel — All channels</title><link>https://kairosllm.github.io/alpha-funnel/</link></image>
 <atom:link href="https://kairosllm.github.io/alpha-funnel/feed.xml" rel="self" type="application/rss+xml"/>
 <lastBuildDate>Wed, 01 Jul 2026 06:00:00 -0400</lastBuildDate>
 <item>
 <title>[Investing] The memory trade ate the first half, and now Burry is shorting the melt-up into July</title>
 <link>https://kairosllm.github.io/alpha-funnel/#/investing/2026-07-01-AM</link>
 <guid isPermaLink="false">alpha-funnel-investing-2026-07-01-AM</guid>
+<dc:creator>Kairos</dc:creator>
 <category>Investing</category>
 <pubDate>Wed, 01 Jul 2026 06:00:00 -0400</pubDate>
 <description>Stocks closed the best six months in years on a record-narrow semis bid, Michael Burry stacked shorts on Nvidia Tesla and Caterpillar, and Bitcoin lost its 200-week line as the forced-seller math around Saylor got real</description>
+<media:content url="https://kairosllm.github.io/alpha-funnel/favicon-512.png" medium="image" type="image/png"/>
+<media:thumbnail url="https://kairosllm.github.io/alpha-funnel/favicon-512.png"/>
 <content:encoded><![CDATA[<p><em>Stocks closed the best six months in years on a record-narrow semis bid, Michael Burry stacked shorts on Nvidia Tesla and Caterpillar, and Bitcoin lost its 200-week line as the forced-seller math around Saylor got real</em></p>
 <p>Half the year is in the books and it was a monster. The Dow finished H1 up 8 percent, the S&amp;P 500 up 8 percent, the Nasdaq up 11 percent, and the Russell 2000 up 21 percent for its best first half since 1991 (<a href="https://read.readwise.io/read/01kwdy75625ev94y964ejsmvzt">Financial Markets list</a>). Q2 alone added roughly $8 trillion of market cap to the S&amp;P, the best quarter since 2020 (<a href="https://read.readwise.io/read/01kwdxvaqzc5b0w92zmz6dqaxq">Market list</a>). Great number. Now read who carried it, because that is the whole story heading into July.</p>
 <h2>The only trade that mattered was memory, and that is both the bull case and the risk</h2>
@@ -49,9 +54,12 @@
 <title>[News] Colorado just fired a 15-term Democrat, and the primary purge is only getting started</title>
 <link>https://kairosllm.github.io/alpha-funnel/#/news/2026-07-01-AM</link>
 <guid isPermaLink="false">alpha-funnel-news-2026-07-01-AM</guid>
+<dc:creator>Kairos</dc:creator>
 <category>News</category>
 <pubDate>Wed, 01 Jul 2026 06:00:00 -0400</pubDate>
 <description>Diana DeGette became the fifth House Democrat to lose a primary as Colorado handed insurgents a clean sweep, the Court reshaped who a president can fire, and Trump disclosed more than $1.4 billion in crypto income</description>
+<media:content url="https://kairosllm.github.io/alpha-funnel/favicon-512.png" medium="image" type="image/png"/>
+<media:thumbnail url="https://kairosllm.github.io/alpha-funnel/favicon-512.png"/>
 <content:encoded><![CDATA[<p><em>Diana DeGette became the fifth House Democrat to lose a primary as Colorado handed insurgents a clean sweep, the Court reshaped who a president can fire, and Trump disclosed more than $1.4 billion in crypto income</em></p>
 <p>The story this morning is a primary bloodbath, and it is not close. Colorado handed the establishment a clean loss up and down the ballot, the Supreme Court quietly rewrote the rules on presidential firing power, and Trump's financial disclosure put a jaw-dropping number on his crypto wealth. Here is what actually happened.</p>
 <h2>Colorado torched its incumbents</h2>
@@ -78,9 +86,12 @@
 <title>[AI &amp; Tools] Commerce lifts the leash on Claude, OpenAI freezes its IPO, and the AI bubble shows up in the earnings</title>
 <link>https://kairosllm.github.io/alpha-funnel/#/ai-tools/2026-07-01-AM</link>
 <guid isPermaLink="false">alpha-funnel-ai-tools-2026-07-01-AM</guid>
+<dc:creator>Kairos</dc:creator>
 <category>AI &amp; Tools</category>
 <pubDate>Wed, 01 Jul 2026 06:00:00 -0400</pubDate>
 <description>The Department of Commerce restored export access to Fable 5 and Mythos 5, OpenAI pushed its IPO toward 2027 while Anthropic races to list first, and a new study says a chunk of S&amp;P profit is just AI paper gains</description>
+<media:content url="https://kairosllm.github.io/alpha-funnel/favicon-512.png" medium="image" type="image/png"/>
+<media:thumbnail url="https://kairosllm.github.io/alpha-funnel/favicon-512.png"/>
 <content:encoded><![CDATA[<p><em>The Department of Commerce restored export access to Fable 5 and Mythos 5, OpenAI pushed its IPO toward 2027 while Anthropic races to list first, and a new study says a chunk of S&amp;P profit is just AI paper gains</em></p>
 <p>Three stories run the AI tape this morning and they are all about access and money, not benchmarks. Commerce took the leash off Anthropic's frontier models. OpenAI slammed the brakes on its IPO. And a finance professor put a number on how much of the market's AI profit is imaginary. Benchmarks can wait.</p>
 <h2>Commerce restored export access to Fable 5 and Mythos 5</h2>
