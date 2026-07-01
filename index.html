@@ -44,6 +44,28 @@ a.brand:hover{text-decoration:none;opacity:.62}
 .theme-toggle:hover{color:var(--ink);border-color:var(--faint)}
 .t-ico::before{content:"☾"}
 :root[data-theme="dark"] .t-ico::before{content:"☀"}
+.topbar.minimal{border-bottom:none}
+
+/* splash / home — one card per channel, sized to fit a single viewport */
+.wrap.splash{min-height:100dvh;display:flex;flex-direction:column;padding-bottom:0}
+.splash-cards{flex:1;display:grid;grid-template-columns:repeat(3,1fr);gap:16px;
+  align-content:center;padding:12px 0 40px}
+.scard{display:flex;flex-direction:column;gap:7px;padding:22px 20px;min-height:160px;
+  border:1px solid var(--line);border-radius:16px;background:var(--card);color:var(--ink);
+  transition:border-color .15s ease,transform .15s ease,box-shadow .15s ease}
+.scard:hover{border-color:var(--faint);transform:translateY(-3px);text-decoration:none;
+  box-shadow:0 12px 30px rgba(20,18,14,.09)}
+:root[data-theme="dark"] .scard:hover{box-shadow:0 12px 30px rgba(0,0,0,.4)}
+.scard .s-name{font-weight:700;font-size:19px;letter-spacing:.2px}
+.scard .s-date{color:var(--muted);font-size:13px;font-weight:500}
+.scard .s-head{color:var(--ink);font:400 15px/1.45 var(--serif);margin-top:5px;
+  display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.scard-empty{opacity:.55;cursor:default}
+@media(max-width:640px){
+  .splash-cards{grid-template-columns:1fr;gap:12px;padding:8px 0 24px}
+  .scard{min-height:0;padding:16px 18px}
+  .scard .s-head{-webkit-line-clamp:2}
+}
 
 /* filters */
 .filters{border-top:1px solid var(--line);border-bottom:1px solid var(--line);
@@ -241,8 +263,11 @@ function route() {
   if (m && CH_BY_KEY[m[1]]) {
     if (activeKey !== m[1]) { activeKey = m[1]; resetChannelState(); }
     if (m[2] && CH().days.some(d => d.id === m[2])) { renderRead(m[2]); window.scrollTo(0, 0); return; }
+    renderList();
+    window.scrollTo(0, 0);
+    return;
   }
-  renderList();
+  renderSplash();          // home / index is the splash landing
   window.scrollTo(0, 0);
 }
 
@@ -251,13 +276,25 @@ function resetChannelState() { state.filter = null; state.showAllEntities = fals
 // "2026-06-30" + "PM" -> "2026-06-30 · PM"; legacy (no edition) -> just the date
 function editionLabel(d, sep) { return d.edition ? d.date + (sep || ' · ') + d.edition : d.date; }
 
+// friendly splash date: "2026-07-01" + "PM" -> "Jul 1 · PM" (parsed manually to avoid TZ shifts)
+// MONTHS is inlined (not a module const) because init() runs before top-level consts initialize.
+function prettyDate(iso) {
+  const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso || '');
+  return m ? MONTHS[+m[2] - 1] + ' ' + (+m[3]) : (iso || '');
+}
+function splashDateLabel(d) {
+  return d.edition ? prettyDate(d.date) + ' · ' + d.edition : prettyDate(d.date);
+}
+
 function go(hash) { location.hash = hash; }
 function goChannel(key) { if (key !== activeKey) go('#/' + key); }
 function goHome() {
-  if (!CHANNELS.length) return;
-  const h = '#/' + CHANNELS[0].key;
-  if (location.hash === h) { resetChannelState(); renderList(); window.scrollTo(0, 0); }
-  else go(h);
+  if (location.hash === '' || location.hash === '#' || location.hash === '#/') {
+    renderSplash(); window.scrollTo(0, 0);       // already home; just re-render
+  } else {
+    go('#/');                                     // hashchange -> route() -> renderSplash
+  }
 }
 
 /* ---------- counts & filtering ---------- */
@@ -301,6 +338,32 @@ function setFilter(kind, value) {
   else renderList();
 }
 
+/* ---------- splash / home ---------- */
+// Minimal landing: one card per channel, each linking to that channel's newest edition.
+function renderSplash() {
+  const cards = CHANNELS.map(c => {
+    const d = c.days[0];               // days are sorted newest-first in init()
+    if (!d) {
+      return `<div class="scard scard-empty">
+          <span class="s-name">${esc(c.label)}</span>
+          <span class="s-date">No editions yet</span></div>`;
+    }
+    return `<a class="scard" href="#/${c.key}/${d.id}">
+        <span class="s-name">${esc(c.label)}</span>
+        <span class="s-date">${esc(splashDateLabel(d))}</span>
+        <span class="s-head">${esc(d.headline)}</span>
+      </a>`;
+  }).join('');
+
+  document.getElementById('app').innerHTML = `
+    <div class="wrap splash">
+      ${topbar({ minimal: true })}
+      <main class="splash-cards">${cards}</main>
+    </div>`;
+
+  wireTopbar();
+}
+
 /* ---------- list view ---------- */
 
 function renderList() {
@@ -329,7 +392,7 @@ function renderList() {
 
   document.getElementById('app').innerHTML = `
     <div class="wrap">
-      ${topbar(false)}
+      ${topbar()}
       <section class="filters">
         <div class="filter-group">
           <span class="filter-label">Topics</span>
@@ -390,7 +453,7 @@ async function renderRead(id) {
   const d = CH().days.find(x => x.id === id);
   document.getElementById('app').innerHTML = `
     <div class="wrap read">
-      ${topbar(true)}
+      ${topbar()}
       <a class="back" href="#/${activeKey}" data-back>← All ${esc(CH().label)} briefings</a>
       <article class="article">
         <div class="kicker">${editionLabel(d)}</div>
@@ -507,15 +570,16 @@ async function getDeep(id) {
 
 /* ---------- topbar (brand + channel nav) + theme ---------- */
 
-function topbar() {
+function topbar(opts) {
+  const minimal = !!(opts && opts.minimal);
   const sep = '<span class="sep">·</span>';
-  const nav = sep + CHANNELS.map(c =>
+  const links = sep + CHANNELS.map(c =>
     `<a class="chan${c.key === activeKey ? ' active' : ''}" data-chan="${c.key}" href="#/${c.key}">${esc(c.label)}</a>`
   ).join(sep);
-  const home = CHANNELS.length ? CHANNELS[0].key : '';
-  return `<header class="topbar">
-      <a class="brand" data-home href="#/${home}" title="Back to ${esc((CHANNELS[0] || {}).label || 'home')}">Alpha&nbsp;Funnel</a>
-      <nav class="chan-nav">${nav}</nav>
+  const nav = minimal ? '' : `<nav class="chan-nav">${links}</nav>`;
+  return `<header class="topbar${minimal ? ' minimal' : ''}">
+      <a class="brand" data-home href="#/" title="Alpha Funnel home">Alpha&nbsp;Funnel</a>
+      ${nav}
       <div class="spacer"></div>
       <a class="x-link" href="https://x.com/KairosLLM" target="_blank" rel="noopener"
          title="@KairosLLM on X" aria-label="X (@KairosLLM)">
