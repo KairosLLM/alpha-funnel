@@ -23,8 +23,10 @@ a:hover{text-decoration:underline}
 .empty{color:var(--muted);font-size:15px;line-height:1.7}
 
 /* top bar */
-.topbar{display:flex;align-items:center;gap:10px;padding:26px 0 18px;flex-wrap:wrap}
-.brand{font-weight:700;letter-spacing:.2px}
+.topbar{display:flex;align-items:center;gap:10px;padding:22px 0 16px;flex-wrap:wrap;
+  position:sticky;top:0;z-index:20;background:var(--bg);border-bottom:1px solid var(--line)}
+a.brand{font-weight:700;letter-spacing:.2px;color:var(--ink);cursor:pointer}
+a.brand:hover{text-decoration:none;opacity:.62}
 .brand-sub{color:var(--faint);font-weight:500}
 .chan-nav{display:flex;align-items:center;gap:2px}
 .chan-nav .sep{color:var(--faint);font-weight:400;pointer-events:none;margin:0 1px}
@@ -251,6 +253,12 @@ function editionLabel(d, sep) { return d.edition ? d.date + (sep || ' · ') + d.
 
 function go(hash) { location.hash = hash; }
 function goChannel(key) { if (key !== activeKey) go('#/' + key); }
+function goHome() {
+  if (!CHANNELS.length) return;
+  const h = '#/' + CHANNELS[0].key;
+  if (location.hash === h) { resetChannelState(); renderList(); window.scrollTo(0, 0); }
+  else go(h);
+}
 
 /* ---------- counts & filtering ---------- */
 
@@ -504,8 +512,9 @@ function topbar() {
   const nav = sep + CHANNELS.map(c =>
     `<a class="chan${c.key === activeKey ? ' active' : ''}" data-chan="${c.key}" href="#/${c.key}">${esc(c.label)}</a>`
   ).join(sep);
+  const home = CHANNELS.length ? CHANNELS[0].key : '';
   return `<header class="topbar">
-      <span class="brand">Alpha&nbsp;Funnel</span>
+      <a class="brand" data-home href="#/${home}" title="Back to ${esc((CHANNELS[0] || {}).label || 'home')}">Alpha&nbsp;Funnel</a>
       <nav class="chan-nav">${nav}</nav>
       <div class="spacer"></div>
       <a class="x-link" href="https://x.com/KairosLLM" target="_blank" rel="noopener"
@@ -523,6 +532,8 @@ function wireTopbar() {
   });
   const back = document.querySelector('#app [data-back]');
   if (back) back.addEventListener('click', e => { e.preventDefault(); go('#/' + activeKey); });
+  const home = document.querySelector('#app [data-home]');
+  if (home) home.addEventListener('click', e => { e.preventDefault(); goHome(); });
   const tt = document.querySelector('#app [data-theme-toggle]');
   if (tt) tt.addEventListener('click', toggleTheme);
 }
