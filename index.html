@@ -136,8 +136,17 @@ a.tg:hover{color:var(--ink);border-color:var(--faint);text-decoration:none}
 .a-tags{display:flex;flex-wrap:wrap;gap:6px}
 .article hr{border:none;border-top:1px solid var(--line);margin:22px 0 6px}
 
+/* "In this edition" jump list */
+.toc{border:1px solid var(--line);border-radius:12px;padding:14px 18px;margin:2px 0 26px;background:var(--card)}
+.toc-h{font-size:12px;text-transform:uppercase;letter-spacing:.7px;color:var(--faint);margin-bottom:8px}
+.toc ul{margin:0;padding-left:18px}
+.toc li{margin:5px 0}
+.toc a{color:var(--muted);font-size:15px}
+.toc a:hover{color:var(--ink)}
+
 /* rendered markdown body */
 .body{font-size:17px;max-width:68ch}
+.body > p[id]{scroll-margin-top:76px}   /* clear the sticky topbar when jumping to a section */
 .body h2{font:600 21px/1.3 var(--serif);margin:34px 0 12px;padding-top:18px;border-top:1px solid var(--line)}
 .body h3{font:600 17px/1.35 var(--sans);margin:22px 0 8px;color:var(--ink)}
 .body p{margin:14px 0}
@@ -658,6 +667,7 @@ async function renderRead(id) {
   body.innerHTML = marked.parse(preprocess(stripTopMatter(md)));
   enhance(body);
   styleCashtags(body);
+  buildTOC(body);
 
   // reading time from the rendered text (~230 wpm)
   const words = (body.textContent || '').trim().split(/\s+/).filter(Boolean).length;
@@ -692,6 +702,36 @@ function preprocess(md) {
   md = md.replace(/\[\[[^|\]]*\|([^\]]+)\]\]/g, '$1');
   md = md.replace(/\[\[([^\]]+)\]\]/g, '$1');
   return md;
+}
+
+// build an "In this edition" jump list from the bold section lead-ins the briefings already use
+// (e.g. "**The close.**", "**1. …**"). No change to how briefings are written; scroll by element ref
+// (not a hash link) so it never collides with the app's hash router.
+function buildTOC(body) {
+  const secs = [];
+  Array.from(body.children).forEach((el, i) => {
+    if (el.tagName !== 'P') return;
+    const strong = el.firstElementChild;
+    if (!strong || strong.tagName !== 'STRONG' || el.firstChild !== strong) return;
+    const label = strong.textContent.trim().replace(/[.:]\s*$/, '');
+    if (!label || label.length > 90) return;
+    el.id = 'sec-' + i;
+    secs.push({ id: el.id, label });
+  });
+  if (secs.length < 3) return;
+  const toc = document.createElement('nav');
+  toc.className = 'toc';
+  toc.setAttribute('aria-label', 'In this edition');
+  toc.innerHTML = '<div class="toc-h">In this edition</div><ul>' +
+    secs.map(s => `<li><a href="#" data-toc="${s.id}">${esc(s.label)}</a></li>`).join('') + '</ul>';
+  body.parentNode.insertBefore(toc, body);
+  toc.querySelectorAll('[data-toc]').forEach(a => {
+    a.addEventListener('click', e => {
+      e.preventDefault();
+      const t = document.getElementById(a.dataset.toc);
+      if (t) t.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  });
 }
 
 // wrap $CASHTAG tokens in the rendered body so tickers pop (text nodes only; skips links/code)
