@@ -5,6 +5,8 @@
 <link>https://kairosllm.github.io/alpha-funnel/</link>
 <description>Daily Investing briefings from Alpha Funnel.</description>
 <language>en-us</language>
+<generator>Alpha Funnel static feed builder</generator>
+<ttl>360</ttl>
 <managingEditor>noreply@kairosllm.dev (Kairos)</managingEditor>
 <image><url>https://kairosllm.github.io/alpha-funnel/favicon-512.png</url><title>Alpha Funnel — Investing</title><link>https://kairosllm.github.io/alpha-funnel/</link></image>
 <atom:link href="https://kairosllm.github.io/alpha-funnel/feed-investing.xml" rel="self" type="application/rss+xml"/>
@@ -17,7 +19,6 @@
 <category>Investing</category>
 <pubDate>Wed, 01 Jul 2026 18:00:00 -0400</pubDate>
 <description>Chips got dumped while $META ripped 11% on a compute pivot, and Bitcoin printed a fresh low under $58K right on Ben Cowen's 2018 script.</description>
-<media:content url="https://kairosllm.github.io/alpha-funnel/favicon-512.png" medium="image" type="image/png"/>
 <media:thumbnail url="https://kairosllm.github.io/alpha-funnel/favicon-512.png"/>
 <content:encoded><![CDATA[<p><em>Chips got dumped while $META ripped 11% on a compute pivot, and Bitcoin printed a fresh low under $58K right on Ben Cowen's 2018 script.</em></p>
 <p>Today was the rotation, live on the tape. If you have been waiting to see what "the leaders get caught offside" actually looks like, you just watched it happen in real time.</p>
@@ -45,7 +46,6 @@
 <category>Investing</category>
 <pubDate>Wed, 01 Jul 2026 06:00:00 -0400</pubDate>
 <description>Stocks closed the best six months in years on a record-narrow semis bid, Michael Burry stacked shorts on Nvidia Tesla and Caterpillar, and Bitcoin lost its 200-week line as the forced-seller math around Saylor got real</description>
-<media:content url="https://kairosllm.github.io/alpha-funnel/favicon-512.png" medium="image" type="image/png"/>
 <media:thumbnail url="https://kairosllm.github.io/alpha-funnel/favicon-512.png"/>
 <content:encoded><![CDATA[<p><em>Stocks closed the best six months in years on a record-narrow semis bid, Michael Burry stacked shorts on Nvidia Tesla and Caterpillar, and Bitcoin lost its 200-week line as the forced-seller math around Saylor got real</em></p>
 <p>Half the year is in the books and it was a monster. The Dow finished H1 up 8 percent, the S&amp;P 500 up 8 percent, the Nasdaq up 11 percent, and the Russell 2000 up 21 percent for its best first half since 1991 (<a href="https://read.readwise.io/read/01kwdy75625ev94y964ejsmvzt">Financial Markets list</a>). Q2 alone added roughly $8 trillion of market cap to the S&amp;P, the best quarter since 2020 (<a href="https://read.readwise.io/read/01kwdxvaqzc5b0w92zmz6dqaxq">Market list</a>). Great number. Now read who carried it, because that is the whole story heading into July.</p>

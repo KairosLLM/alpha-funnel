@@ -5,6 +5,8 @@
 <link>https://kairosllm.github.io/alpha-funnel/</link>
 <description>Daily investing, news, and AI &amp; Tools briefings from Alpha Funnel.</description>
 <language>en-us</language>
+<generator>Alpha Funnel static feed builder</generator>
+<ttl>360</ttl>
 <managingEditor>noreply@kairosllm.dev (Kairos)</managingEditor>
 <image><url>https://kairosllm.github.io/alpha-funnel/favicon-512.png</url><title>Alpha Funnel — All channels</title><link>https://kairosllm.github.io/alpha-funnel/</link></image>
 <atom:link href="https://kairosllm.github.io/alpha-funnel/feed.xml" rel="self" type="application/rss+xml"/>
@@ -17,7 +19,6 @@
 <category>Investing</category>
 <pubDate>Wed, 01 Jul 2026 18:00:00 -0400</pubDate>
 <description>Chips got dumped while $META ripped 11% on a compute pivot, and Bitcoin printed a fresh low under $58K right on Ben Cowen's 2018 script.</description>
-<media:content url="https://kairosllm.github.io/alpha-funnel/favicon-512.png" medium="image" type="image/png"/>
 <media:thumbnail url="https://kairosllm.github.io/alpha-funnel/favicon-512.png"/>
 <content:encoded><![CDATA[<p><em>Chips got dumped while $META ripped 11% on a compute pivot, and Bitcoin printed a fresh low under $58K right on Ben Cowen's 2018 script.</em></p>
 <p>Today was the rotation, live on the tape. If you have been waiting to see what "the leaders get caught offside" actually looks like, you just watched it happen in real time.</p>
@@ -45,7 +46,6 @@
 <category>News</category>
 <pubDate>Wed, 01 Jul 2026 18:00:00 -0400</pubDate>
 <description>Crude cracked a four-month low as the war premium bled out, David Sacks says the DSA now runs the Democratic base, and the prediction markets moved.</description>
-<media:content url="https://kairosllm.github.io/alpha-funnel/favicon-512.png" medium="image" type="image/png"/>
 <media:thumbnail url="https://kairosllm.github.io/alpha-funnel/favicon-512.png"/>
 <content:encoded><![CDATA[<p><em>Crude cracked a four-month low as the war premium bled out, David Sacks says the DSA now runs the Democratic base, and the prediction markets moved.</em></p>
 <p><strong>1. The gas-price theater.</strong> President Trump went on Truth Social today demanding that gas retailers cut prices because they are "too high," which <a href="https://read.readwise.io/read/01kwf9wxf336v6bjv7455459vd">Prof G Markets</a> correctly filed under break-something-then-blame-someone-else economics. Here is the actual chain of events. Gas is elevated because of the Iran conflict, and the "memorandum of understanding" the administration claimed had settled it is not holding. The US and Iran traded strikes over the weekend, each side accusing the other of breaking the deal, and the Strait of Hormuz risk is unresolved. The irony is that the market already did the work Trump is demanding: WTI crude slid under $68.50 today, a four-month low, and traders say the entire war premium has now bled out, with crude flirting with contango per Javier Blas. Prices will not fall on a social-media post. They will fall when the conflict actually ends.</p>
@@ -63,7 +63,6 @@
 <category>AI &amp; Tools</category>
 <pubDate>Wed, 01 Jul 2026 18:00:00 -0400</pubDate>
 <description>Anthropic redeployed its flagship globally amid a caps-and-refusals backlash, the Skills-over-files shift went mainstream, and energy quietly became the AI bottleneck that matters.</description>
-<media:content url="https://kairosllm.github.io/alpha-funnel/favicon-512.png" medium="image" type="image/png"/>
 <media:thumbnail url="https://kairosllm.github.io/alpha-funnel/favicon-512.png"/>
 <content:encoded><![CDATA[<p><em>Anthropic redeployed its flagship globally amid a caps-and-refusals backlash, the Skills-over-files shift went mainstream, and energy quietly became the AI bottleneck that matters.</em></p>
 <p><strong>1. Fable 5 is live again, with guardrails and grumbling.</strong> Anthropic is redeploying Claude Fable 5 globally, this time wired with new cybersecurity classifiers, and routine coding requests fall back to Opus 4.8. The community reaction has been loud, with well-known accounts complaining about usage caps and over-eager refusals, and Anthropic reportedly drafting a jailbreak-severity framework alongside Amazon, Microsoft, and Google. <a href="https://www.youtube.com/channel/UCfQNB91qRP_5ILeu_S_bSkg">Alex Finn</a> posted an early playbook that is worth skimming past the hype (he leans hard on a paid deposit tool, so discount accordingly): use Fable to audit every pull request merged while it was gone, drive the Claude-for-Chrome extension to walk your app like a real user and write a UX report, and use the `/loop` command (for example `/loop 24h`) to repeatedly hammer your own API endpoints for vulnerabilities, since API routes are the biggest attack surface on vibe-coded apps. That last one is the genuinely useful idea in the video.</p>
@@ -83,7 +82,6 @@
 <category>Investing</category>
 <pubDate>Wed, 01 Jul 2026 06:00:00 -0400</pubDate>
 <description>Stocks closed the best six months in years on a record-narrow semis bid, Michael Burry stacked shorts on Nvidia Tesla and Caterpillar, and Bitcoin lost its 200-week line as the forced-seller math around Saylor got real</description>
-<media:content url="https://kairosllm.github.io/alpha-funnel/favicon-512.png" medium="image" type="image/png"/>
 <media:thumbnail url="https://kairosllm.github.io/alpha-funnel/favicon-512.png"/>
 <content:encoded><![CDATA[<p><em>Stocks closed the best six months in years on a record-narrow semis bid, Michael Burry stacked shorts on Nvidia Tesla and Caterpillar, and Bitcoin lost its 200-week line as the forced-seller math around Saylor got real</em></p>
 <p>Half the year is in the books and it was a monster. The Dow finished H1 up 8 percent, the S&amp;P 500 up 8 percent, the Nasdaq up 11 percent, and the Russell 2000 up 21 percent for its best first half since 1991 (<a href="https://read.readwise.io/read/01kwdy75625ev94y964ejsmvzt">Financial Markets list</a>). Q2 alone added roughly $8 trillion of market cap to the S&amp;P, the best quarter since 2020 (<a href="https://read.readwise.io/read/01kwdxvaqzc5b0w92zmz6dqaxq">Market list</a>). Great number. Now read who carried it, because that is the whole story heading into July.</p>
@@ -124,7 +122,6 @@
 <category>News</category>
 <pubDate>Wed, 01 Jul 2026 06:00:00 -0400</pubDate>
 <description>Diana DeGette became the fifth House Democrat to lose a primary as Colorado handed insurgents a clean sweep, the Court reshaped who a president can fire, and Trump disclosed more than $1.4 billion in crypto income</description>
-<media:content url="https://kairosllm.github.io/alpha-funnel/favicon-512.png" medium="image" type="image/png"/>
 <media:thumbnail url="https://kairosllm.github.io/alpha-funnel/favicon-512.png"/>
 <content:encoded><![CDATA[<p><em>Diana DeGette became the fifth House Democrat to lose a primary as Colorado handed insurgents a clean sweep, the Court reshaped who a president can fire, and Trump disclosed more than $1.4 billion in crypto income</em></p>
 <p>The story this morning is a primary bloodbath, and it is not close. Colorado handed the establishment a clean loss up and down the ballot, the Supreme Court quietly rewrote the rules on presidential firing power, and Trump's financial disclosure put a jaw-dropping number on his crypto wealth. Here is what actually happened.</p>
@@ -156,7 +153,6 @@
 <category>AI &amp; Tools</category>
 <pubDate>Wed, 01 Jul 2026 06:00:00 -0400</pubDate>
 <description>The Department of Commerce restored export access to Fable 5 and Mythos 5, OpenAI pushed its IPO toward 2027 while Anthropic races to list first, and a new study says a chunk of S&amp;P profit is just AI paper gains</description>
-<media:content url="https://kairosllm.github.io/alpha-funnel/favicon-512.png" medium="image" type="image/png"/>
 <media:thumbnail url="https://kairosllm.github.io/alpha-funnel/favicon-512.png"/>
 <content:encoded><![CDATA[<p><em>The Department of Commerce restored export access to Fable 5 and Mythos 5, OpenAI pushed its IPO toward 2027 while Anthropic races to list first, and a new study says a chunk of S&amp;P profit is just AI paper gains</em></p>
 <p>Three stories run the AI tape this morning and they are all about access and money, not benchmarks. Commerce took the leash off Anthropic's frontier models. OpenAI slammed the brakes on its IPO. And a finance professor put a number on how much of the market's AI profit is imaginary. Benchmarks can wait.</p>
