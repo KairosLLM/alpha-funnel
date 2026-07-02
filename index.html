@@ -189,6 +189,50 @@ a.cite-plain{color:var(--accent);text-decoration:underline;
 .scrim{position:fixed;inset:0;background:rgba(20,18,14,.32);z-index:35}
 :root[data-theme="dark"] .scrim{background:rgba(0,0,0,.5)}
 
+/* ---- Pass-3 features: a11y, search, shortcuts, markers, progress, share ---- */
+/* skip link + screen-reader-only + no ugly ring on the focused main landmark */
+.skip{position:fixed;top:-48px;left:10px;z-index:70;background:var(--accent);color:var(--on-accent);
+  padding:8px 14px;border-radius:8px;font:600 14px var(--sans);transition:top .15s ease}
+.skip:focus{top:10px;text-decoration:none}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+#main:focus{outline:none}
+/* reading-progress bar */
+#readbar{position:fixed;top:0;left:0;height:3px;width:0;background:var(--accent);z-index:60;transition:width .12s linear}
+/* "new since last visit" dots */
+.ndot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--accent);vertical-align:middle}
+.chan .ndot{width:6px;height:6px;margin-left:5px}
+/* topbar icon button (search) matches the theme toggle */
+.icon-btn{border:1px solid var(--line);background:var(--card);color:var(--muted);
+  width:34px;height:34px;border-radius:9px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;padding:0}
+.icon-btn:hover{color:var(--ink);border-color:var(--faint)}
+/* search drawer */
+.search-input{width:100%;font:400 16px var(--sans);padding:10px 12px;border:1px solid var(--line);
+  border-radius:10px;background:var(--bg);color:var(--ink)}
+.search-input:focus{outline:none;border-color:var(--accent)}
+.search-results{margin-top:12px;display:flex;flex-direction:column}
+.sr-row{display:flex;flex-direction:column;gap:2px;padding:10px 2px;border-bottom:1px solid var(--line2);color:inherit}
+.sr-row:hover{text-decoration:none}
+.sr-row:hover .sr-title{color:var(--accent)}
+.sr-meta{font-size:12px;color:var(--muted)}
+.sr-title{font:500 15px/1.35 var(--serif)}
+/* shortcuts help */
+.kbd-list{display:grid;grid-template-columns:auto 1fr;gap:10px 16px;align-items:baseline;margin:6px 0}
+.kbd-list dt{margin:0}.kbd-list dd{margin:0;color:var(--muted);font-size:14px}
+kbd{font:600 12px var(--sans);background:var(--chip);color:var(--ink);border:1px solid var(--line);
+  border-bottom-width:2px;border-radius:6px;padding:2px 7px;white-space:nowrap}
+.wi-tip{font-size:13px;color:var(--muted)}
+/* clickable body cashtags */
+.cashtag.clickable{cursor:pointer}
+.cashtag.clickable:hover{color:var(--accent)}
+.cashtag.clickable:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+/* share button in the reading-view kicker */
+.article .kicker{display:flex;align-items:center;gap:10px}
+.share-btn{margin-left:auto;border:1px solid var(--line);background:var(--card);color:var(--muted);
+  font:600 12px var(--sans);letter-spacing:normal;text-transform:none;padding:5px 12px;border-radius:8px;cursor:pointer}
+.share-btn:hover{color:var(--ink);border-color:var(--faint)}
+/* scroll-spy active TOC entry */
+.toc a.active{color:var(--ink);font-weight:600}
+
 /* subscribe button (topbar) */
 .sub-btn{border:1px solid var(--line);background:var(--card);color:var(--muted);
   font:600 12.5px var(--sans);padding:6px 12px;border-radius:9px;cursor:pointer;white-space:nowrap}
@@ -230,6 +274,9 @@ a.cite-plain{color:var(--accent);text-decoration:underline;
 
 </script></head><body>
 
+<a class="skip" href="#main">Skip to content</a>
+<div id="readbar" aria-hidden="true"></div>
+<div id="live" class="sr-only" aria-live="polite"></div>
 <div id="app"></div>
 <aside id="drawer" class="drawer" role="dialog" aria-modal="true" aria-labelledby="drawerTag" aria-hidden="true">
   <div class="drawer-head"><span class="drawer-tag" id="drawerTag">Zoom-in</span>
@@ -265,6 +312,7 @@ let DEEP_IDS = new Set();      // source ids that have a deep-dive available
 let DEEP = null;               // standalone: {id: md}; served: null (fetch on demand)
 
 let state = { filter: null, showAllEntities: false }; // filter = {kind:'topic'|'entity', value} | null
+let SEEN = new Set();   // "key/id" of editions already opened (persisted to localStorage af-seen)
 
 const elDrawer = () => document.getElementById('drawer');
 const elScrim = () => document.getElementById('scrim');
@@ -304,15 +352,40 @@ async function init() {
     CH_BY_KEY[c.key] = c;
   });
   activeKey = CHANNELS[0].key; // default channel (Investing)
+  loadSeen();
 
   document.getElementById('drawerClose').addEventListener('click', closeDrawer);
   elScrim().addEventListener('click', closeDrawer);
   document.addEventListener('keydown', e => { if (e.key === 'Escape') closeDrawer(); });
   document.addEventListener('keydown', keyNav);
   document.addEventListener('keydown', trapTab);
+  window.addEventListener('scroll', onReadScroll, { passive: true });
+  const skip = document.querySelector('.skip');
+  if (skip) skip.addEventListener('click', e => {
+    e.preventDefault();
+    const mn = document.getElementById('main');
+    if (mn) { mn.focus(); mn.scrollIntoView(); }
+  });
   window.addEventListener('hashchange', route);
   route();
 }
+
+/* ---------- "new since last visit" tracking (localStorage) ---------- */
+function loadSeen() {
+  let raw = null;
+  try { raw = localStorage.getItem('af-seen'); } catch (e) {}
+  if (raw == null) {
+    // first ever visit: seed with every current edition so nothing shows as falsely "new"
+    CHANNELS.forEach(c => c.days.forEach(d => SEEN.add(c.key + '/' + d.id)));
+    persistSeen();
+  } else {
+    try { (JSON.parse(raw) || []).forEach(k => SEEN.add(k)); } catch (e) {}
+  }
+}
+function persistSeen() { try { localStorage.setItem('af-seen', JSON.stringify([...SEEN])); } catch (e) {} }
+function isNew(key, id) { return !SEEN.has(key + '/' + id); }
+function markSeen(key, id) { if (isNew(key, id)) { SEEN.add(key + '/' + id); persistSeen(); } }
+function channelHasNew(c) { return c.days.some(d => isNew(c.key, d.id)); }
 
 function CH() { return CH_BY_KEY[activeKey] || CHANNELS[0]; }
 
@@ -324,13 +397,26 @@ function route() {
   const m = (location.hash || '').match(/^#\/([a-z-]+)(?:\/(\d{4}-\d{2}-\d{2}(?:-(?:AM|PM))?))?$/);
   if (m && CH_BY_KEY[m[1]]) {
     if (activeKey !== m[1]) { activeKey = m[1]; resetChannelState(); }
-    if (m[2] && CH().days.some(d => d.id === m[2])) { renderRead(m[2]); window.scrollTo(0, 0); return; }
-    renderList();
-    window.scrollTo(0, 0);
-    return;
+    if (m[2] && CH().days.some(d => d.id === m[2])) {
+      renderRead(m[2]); window.scrollTo(0, 0);
+      const d = CH().days.find(x => x.id === m[2]);
+      afterRoute(d ? d.headline : 'Reading'); return;
+    }
+    renderList(); window.scrollTo(0, 0); afterRoute(CH().label + ' briefings'); return;
   }
   renderSplash();          // home / index is the splash landing
   window.scrollTo(0, 0);
+  afterRoute('Alpha Funnel home');
+}
+
+// SPA a11y: announce the new view to screen readers and move focus to the main landmark
+function afterRoute(label) {
+  const live = document.getElementById('live');
+  if (live) live.textContent = label;
+  const bar = document.getElementById('readbar');   // reset progress bar when leaving a reading view
+  if (bar && !/^#\/[a-z-]+\/.+/.test(location.hash || '')) bar.style.width = '0%';
+  const mainEl = document.getElementById('main');
+  if (mainEl) { try { mainEl.focus({ preventScroll: true }); } catch (e) { mainEl.focus(); } }
 }
 
 function resetChannelState() { state.filter = null; state.showAllEntities = false; }
@@ -374,6 +460,9 @@ function keyNav(e) {
   const tag = (e.target && e.target.tagName) || '';
   if (tag === 'INPUT' || tag === 'TEXTAREA' || (e.target && e.target.isContentEditable)) return;
   if (elDrawer().classList.contains('open')) return;
+
+  if (e.key === '/') { e.preventDefault(); openSearch(); return; }
+  if (e.key === '?') { e.preventDefault(); openShortcuts(); return; }
 
   if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
     const m = (location.hash || '').match(/^#\/([a-z-]+)\/(.+)$/);
@@ -462,7 +551,7 @@ function renderSplash() {
     }
     return `<a class="scard" href="#/${c.key}/${d.id}">
         <div class="s-meta">
-          <span class="s-name">${esc(c.label)}</span>
+          <span class="s-name">${esc(c.label)}${isNew(c.key, d.id) ? ' <span class="ndot"></span>' : ''}</span>
           <span class="s-date">${esc(splashDateLabel(d))}</span>
         </div>
         <div class="s-head">${esc(d.headline)}</div>
@@ -472,7 +561,7 @@ function renderSplash() {
   document.getElementById('app').innerHTML = `
     <div class="wrap splash">
       ${topbar({ minimal: true })}
-      <main class="splash-main">
+      <main id="main" class="splash-main" tabindex="-1">
         <div class="splash-inner">
           <div class="splash-cards">${cards}</div>
           <div class="splash-foot">
@@ -497,7 +586,8 @@ function openWhatIs() {
   document.getElementById('drawerBody').innerHTML =
     '<p>Alpha Funnel is a twice-daily read for people who take markets seriously but do not have all day to watch them. Every morning and evening it ships three briefings. Investing, News, and AI &amp; Tools.</p>' +
     '<p>The job is simple. Take the flood of the day, rank what actually matters, name the tickers, levels, and people, and say out loud what is just noise. It is written for a long-term investor who also swing trades, so the lens is durable trends and multi-day setups, not intraday chop.</p>' +
-    '<p>Opinionated on purpose. Read it here, or subscribe to any channel by RSS.</p>';
+    '<p>Opinionated on purpose. Read it here, or subscribe to any channel by RSS.</p>' +
+    '<p class="wi-tip">Tip: press <kbd>/</kbd> to search every edition, <kbd>?</kbd> for keyboard shortcuts.</p>';
   openDrawerShell();
   document.getElementById('drawerBody').scrollTop = 0;
 }
@@ -544,6 +634,85 @@ function openSubscribe() {
   body.scrollTop = 0;
 }
 
+/* Quick-find: search headlines/subtitles/topics/entities across ALL channels (data is in memory). */
+function openSearch() {
+  const tag = document.querySelector('#drawer .drawer-tag');
+  if (tag) tag.textContent = 'Search';
+  const src = document.getElementById('drawerSource');
+  if (src) src.style.display = 'none';
+  const body = document.getElementById('drawerBody');
+  body.innerHTML =
+    '<input class="search-input" type="search" placeholder="Search all editions…" aria-label="Search all editions" autocomplete="off" spellcheck="false">' +
+    '<div class="search-results" id="searchResults"></div>';
+  const input = body.querySelector('.search-input');
+  const results = body.querySelector('#searchResults');
+  const all = CHANNELS.flatMap(c => c.days.map(d => ({
+    ch: c, d,
+    hay: [d.headline, d.subtitle, ...(d.topics || []).map(t => TOPIC_LABEL[t] || t), ...(d.entities || [])].join(' ').toLowerCase()
+  })));
+  const render = () => {
+    const q = input.value.trim().toLowerCase();
+    let list = all;
+    if (q) { const toks = q.split(/\s+/); list = all.filter(x => toks.every(t => x.hay.includes(t))); }
+    list = list.slice(0, 25);
+    if (!list.length) { results.innerHTML = '<p class="empty">No editions match.</p>'; return; }
+    results.innerHTML = list.map(x =>
+      `<a class="sr-row" href="#/${x.ch.key}/${x.d.id}" data-go="#/${x.ch.key}/${x.d.id}">` +
+        `<span class="sr-meta">${esc(x.ch.label)} · ${esc(splashDateLabel(x.d))}</span>` +
+        `<span class="sr-title">${esc(x.d.headline)}</span></a>`).join('');
+    results.querySelectorAll('[data-go]').forEach(a =>
+      a.addEventListener('click', e => { e.preventDefault(); closeDrawer(); go(a.dataset.go); }));
+  };
+  input.addEventListener('input', render);
+  input.addEventListener('keydown', e => {
+    if (e.key === 'Enter') { const first = results.querySelector('[data-go]'); if (first) { e.preventDefault(); closeDrawer(); go(first.dataset.go); } }
+  });
+  render();
+  openDrawerShell();
+  setTimeout(() => input.focus(), 30);   // override the shell's focus-on-close-button
+}
+
+/* Keyboard shortcuts help (reuses the drawer). */
+function openShortcuts() {
+  const tag = document.querySelector('#drawer .drawer-tag');
+  if (tag) tag.textContent = 'Shortcuts';
+  const src = document.getElementById('drawerSource');
+  if (src) src.style.display = 'none';
+  document.getElementById('drawerBody').innerHTML =
+    '<dl class="kbd-list">' +
+    '<dt><kbd>/</kbd></dt><dd>Search all editions</dd>' +
+    '<dt><kbd>j</kbd> <kbd>k</kbd></dt><dd>Move down / up the edition list</dd>' +
+    '<dt><kbd>&larr;</kbd> <kbd>&rarr;</kbd></dt><dd>Previous / next edition while reading</dd>' +
+    '<dt><kbd>Esc</kbd></dt><dd>Close this panel</dd>' +
+    '<dt><kbd>?</kbd></dt><dd>Show this help</dd>' +
+    '</dl>';
+  openDrawerShell();
+}
+
+/* Share the canonical (public, server-addressable) page for an edition. */
+function shareEdition(d, btn) {
+  const url = feedBase() + '/' + activeKey + '/' + d.id + '.html';
+  if (navigator.share) { navigator.share({ title: d.headline, url }).catch(() => {}); return; }
+  const done = () => { if (btn) { btn.textContent = 'Copied'; setTimeout(() => { btn.textContent = 'Share'; }, 1400); } };
+  if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(url).then(done, done);
+  else done();
+}
+
+/* Reading-progress bar (thin top bar); only active in a reading view. */
+let _scrollRAF = 0;
+function onReadScroll() {
+  if (_scrollRAF) return;
+  _scrollRAF = requestAnimationFrame(() => {
+    _scrollRAF = 0;
+    const bar = document.getElementById('readbar');
+    if (!bar) return;
+    const inRead = /^#\/[a-z-]+\/.+/.test(location.hash || '');
+    if (!inRead) { bar.style.width = '0%'; return; }
+    const h = document.documentElement.scrollHeight - window.innerHeight;
+    bar.style.width = (h > 0 ? Math.min(100, (window.scrollY / h) * 100) : 0) + '%';
+  });
+}
+
 /* ---------- list view ---------- */
 
 function renderList() {
@@ -571,7 +740,7 @@ function renderList() {
   const rest = days.slice(1).map(rowItem).join('');
 
   document.getElementById('app').innerHTML = `
-    <div class="wrap">
+    <main id="main" class="wrap" tabindex="-1">
       ${topbar()}
       <section class="filters">
         <div class="filter-group">
@@ -586,7 +755,7 @@ function renderList() {
       </section>
       ${featured}
       ${rest ? `<div class="list">${rest}</div>` : ''}
-    </div>`;
+    </main>`;
 
   wireTopbar();
   document.querySelectorAll('#app [data-act]').forEach(b => {
@@ -612,7 +781,7 @@ function chip(kind, c, f) {
 
 function featuredCard(d) {
   return `<a class="featured" href="#/${activeKey}/${d.id}" data-id="${d.id}">
-      <div class="kicker">Latest briefing · ${editionLabel(d, ' ')}</div>
+      <div class="kicker">Latest briefing · ${editionLabel(d, ' ')}${isNew(activeKey, d.id) ? ' <span class="ndot"></span>' : ''}</div>
       <h1 class="f-title">${esc(d.headline)}</h1>
       ${d.subtitle ? `<p class="f-sub">${esc(d.subtitle)}</p>` : ''}
       <div class="f-tags">${(d.topics || []).map(t => `<span class="tg">${esc(TOPIC_LABEL[t] || cap(t))}</span>`).join('')}</div>
@@ -622,7 +791,7 @@ function featuredCard(d) {
 
 function rowItem(d) {
   return `<a class="row" href="#/${activeKey}/${d.id}" data-id="${d.id}">
-      <span class="r-date">${editionLabel(d)}</span>
+      <span class="r-date">${editionLabel(d)}${isNew(activeKey, d.id) ? ' <span class="ndot"></span>' : ''}</span>
       <span class="r-title">${esc(d.headline)}</span>
     </a>`;
 }
@@ -631,6 +800,7 @@ function rowItem(d) {
 
 async function renderRead(id) {
   const d = CH().days.find(x => x.id === id);
+  markSeen(activeKey, id);
   const days = CH().days;
   const idx = days.findIndex(x => x.id === id);
   const older = idx >= 0 ? days[idx + 1] : null;   // older edition (further back)
@@ -640,11 +810,11 @@ async function renderRead(id) {
     (newer ? `<a class="ed-next" href="#/${activeKey}/${newer.id}">${esc(splashDateLabel(newer))} →</a>` : '<span></span>');
 
   document.getElementById('app').innerHTML = `
-    <div class="wrap read">
+    <main id="main" class="wrap read" tabindex="-1">
       ${topbar()}
       <a class="back" href="#/${activeKey}" data-back>← All ${esc(CH().label)} briefings</a>
       <article class="article">
-        <div class="kicker">${esc(readKicker(d))}<span id="readtime"></span></div>
+        <div class="kicker">${esc(readKicker(d))}<span id="readtime"></span><button class="share-btn" data-share aria-label="Share this edition">Share</button></div>
         <h1 class="a-title">${esc(d.headline)}</h1>
         ${d.subtitle ? `<p class="a-sub">${esc(d.subtitle)}</p>` : ''}
         <div class="a-tags">${(d.topics || []).map(t => `<a class="tg" href="#" data-topic="${esc(t)}">${esc(TOPIC_LABEL[t] || cap(t))}</a>`).join('')}</div>
@@ -652,12 +822,14 @@ async function renderRead(id) {
         <div id="body" class="body"><p class="muted">loading…</p></div>
       </article>
       <nav class="edition-nav" aria-label="Editions in this channel">${navHtml}</nav>
-    </div>`;
+    </main>`;
 
   wireTopbar();
   document.querySelectorAll('#app [data-topic]').forEach(a => {
     a.addEventListener('click', e => { e.preventDefault(); setFilter('topic', a.dataset.topic); });
   });
+  const sb = document.querySelector('#app [data-share]');
+  if (sb) sb.addEventListener('click', () => shareEdition(d, sb));
 
   let md;
   try { md = await getBody(d); }
@@ -668,6 +840,16 @@ async function renderRead(id) {
   enhance(body);
   styleCashtags(body);
   buildTOC(body);
+  // Investing tickers are the entity filter, so make body cashtags click to filter
+  if (activeKey === 'investing') {
+    body.querySelectorAll('.cashtag').forEach(s => {
+      s.classList.add('clickable');
+      s.setAttribute('role', 'button');
+      s.setAttribute('tabindex', '0');
+      s.addEventListener('click', () => setFilter('entity', s.dataset.cash));
+      s.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setFilter('entity', s.dataset.cash); } });
+    });
+  }
 
   // reading time from the rendered text (~230 wpm)
   const words = (body.textContent || '').trim().split(/\s+/).filter(Boolean).length;
@@ -725,13 +907,27 @@ function buildTOC(body) {
   toc.innerHTML = '<div class="toc-h">In this edition</div><ul>' +
     secs.map(s => `<li><a href="#" data-toc="${s.id}">${esc(s.label)}</a></li>`).join('') + '</ul>';
   body.parentNode.insertBefore(toc, body);
+  const links = {};
   toc.querySelectorAll('[data-toc]').forEach(a => {
+    links[a.dataset.toc] = a;
     a.addEventListener('click', e => {
       e.preventDefault();
       const t = document.getElementById(a.dataset.toc);
       if (t) t.scrollIntoView({ behavior: 'smooth', block: 'start' });
     });
   });
+  // scroll-spy: highlight the section currently near the top
+  if ('IntersectionObserver' in window) {
+    const obs = new IntersectionObserver(entries => {
+      entries.forEach(en => {
+        if (en.isIntersecting) {
+          Object.values(links).forEach(l => l.classList.remove('active'));
+          if (links[en.target.id]) links[en.target.id].classList.add('active');
+        }
+      });
+    }, { rootMargin: '-84px 0px -70% 0px' });
+    secs.forEach(s => { const el = document.getElementById(s.id); if (el) obs.observe(el); });
+  }
 }
 
 // wrap $CASHTAG tokens in the rendered body so tickers pop (text nodes only; skips links/code)
@@ -756,6 +952,7 @@ function styleCashtags(scope) {
       const span = document.createElement('span');
       span.className = 'cashtag';
       span.textContent = m[0];
+      span.dataset.cash = m[0];
       frag.appendChild(span);
       last = m.index + m[0].length;
     }
@@ -848,13 +1045,17 @@ function topbar(opts) {
   const minimal = !!(opts && opts.minimal);
   const sep = '<span class="sep">·</span>';
   const links = sep + CHANNELS.map(c =>
-    `<a class="chan${c.key === activeKey ? ' active' : ''}" data-chan="${c.key}" href="#/${c.key}">${esc(c.label)}</a>`
+    `<a class="chan${c.key === activeKey ? ' active' : ''}" data-chan="${c.key}" href="#/${c.key}">${esc(c.label)}` +
+    `${channelHasNew(c) ? '<span class="ndot" aria-label="new editions"></span>' : ''}</a>`
   ).join(sep);
   const nav = minimal ? '' : `<nav class="chan-nav">${links}</nav>`;
   return `<header class="topbar${minimal ? ' minimal' : ''}">
       <a class="brand" data-home href="#/" title="Alpha Funnel home">Alpha&nbsp;Funnel</a>
       ${nav}
       <div class="spacer"></div>
+      <button class="icon-btn" data-search title="Search (press /)" aria-label="Search editions">
+        <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5" fill="none" stroke="currentColor" stroke-width="2"/><line x1="15.2" y1="15.2" x2="21" y2="21" stroke="currentColor" stroke-width="2"/></svg>
+      </button>
       <button class="sub-btn" data-subscribe title="Subscribe by RSS" aria-label="Subscribe by RSS">Subscribe</button>
       <a class="x-link" href="https://x.com/KairosLLM" target="_blank" rel="noopener"
          title="@KairosLLM on X" aria-label="X (@KairosLLM)">
@@ -879,6 +1080,8 @@ function wireTopbar() {
   if (tt) tt.addEventListener('click', toggleTheme);
   const sub = document.querySelector('#app [data-subscribe]');
   if (sub) sub.addEventListener('click', openSubscribe);
+  const srch = document.querySelector('#app [data-search]');
+  if (srch) srch.addEventListener('click', openSearch);
 }
 
 function initTheme() {
