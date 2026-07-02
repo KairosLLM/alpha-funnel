@@ -49,9 +49,10 @@ a.brand:hover{text-decoration:none;opacity:.62}
 /* splash / home — three long full-width cards stacked vertically, filling one viewport
    (no scroll on desktop). Card: channel name + date on the left, full headline on the right. */
 .wrap.splash{height:100dvh;display:flex;flex-direction:column;padding-bottom:0;overflow:hidden}
-.splash-cards{flex:1;min-height:0;display:grid;grid-template-columns:1fr;
-  grid-auto-rows:min-content;align-content:center;gap:14px;padding:8px 0 10px}
-.scard{display:flex;align-items:center;gap:26px;min-height:0;padding:18px 28px;
+.splash-main{flex:1;min-height:0;display:flex;align-items:center;justify-content:center;padding:10px 0}
+.splash-inner{width:100%}
+.splash-cards{display:grid;grid-template-columns:1fr;gap:10px}
+.scard{display:flex;align-items:center;gap:26px;padding:20px 28px;
   border:1px solid var(--line);border-radius:16px;overflow:hidden;
   background:var(--card);color:var(--ink);
   transition:border-color .15s ease,transform .15s ease,box-shadow .15s ease}
@@ -61,18 +62,19 @@ a.brand:hover{text-decoration:none;opacity:.62}
 .scard .s-meta{flex:0 0 190px;display:flex;flex-direction:column;gap:3px}
 .scard .s-name{font-weight:700;font-size:21px;letter-spacing:.2px}
 .scard .s-date{color:var(--muted);font-size:13.5px;font-weight:500}
-.scard .s-head{flex:1;font:400 22px/1.35 var(--serif);color:var(--ink)}
+/* reserve 3 lines so every card is the same height regardless of headline length */
+.scard .s-head{flex:1;font:400 22px/1.35 var(--serif);color:var(--ink);min-height:4.05em}
 .scard-empty{opacity:.55;cursor:default}
-.splash-foot{display:flex;justify-content:flex-end;padding:6px 0 14px;flex:0 0 auto}
+.splash-foot{display:flex;justify-content:flex-end;margin-top:12px}
 .whatis{border:1px solid var(--line);background:var(--card);color:var(--muted);
   font:500 13px var(--sans);padding:7px 13px;border-radius:9px;cursor:pointer}
 .whatis:hover{color:var(--ink);border-color:var(--faint)}
 @media(max-width:640px){
   .wrap.splash{height:auto;min-height:100dvh;overflow:visible}
-  .splash-cards{grid-template-rows:none;grid-auto-rows:auto;gap:12px;padding:6px 0 10px}
-  .scard{flex-direction:column;align-items:flex-start;gap:10px;padding:18px}
+  .splash-main{padding:16px 0}
+  .scard{flex-direction:column;align-items:flex-start;gap:10px;padding:16px 18px}
   .scard .s-meta{flex:none}
-  .scard .s-head{font-size:19px}
+  .scard .s-head{font-size:19px;min-height:0}
 }
 
 /* filters */
@@ -368,10 +370,14 @@ function renderSplash() {
   document.getElementById('app').innerHTML = `
     <div class="wrap splash">
       ${topbar({ minimal: true })}
-      <main class="splash-cards">${cards}</main>
-      <footer class="splash-foot">
-        <button class="whatis" data-whatis>What is this?</button>
-      </footer>
+      <main class="splash-main">
+        <div class="splash-inner">
+          <div class="splash-cards">${cards}</div>
+          <div class="splash-foot">
+            <button class="whatis" data-whatis>What is this?</button>
+          </div>
+        </div>
+      </main>
     </div>`;
 
   wireTopbar();
