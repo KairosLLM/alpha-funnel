@@ -357,8 +357,9 @@ async function init() {
       `<div class="wrap"><p class="empty">No channels found.</p></div>`;
     return;
   }
-  // newest first within each channel: by date, then PM > legacy all-day > AM
-  const RANK = { PM: 3, '': 2, AM: 1 };
+  // newest first within each channel: by date, then Deep-Dive (week's featured memo) > PM >
+  // legacy all-day > AM. Mirrors meta.py SESSION_RANK — keep the two in lockstep.
+  const RANK = { 'Deep-Dive': 4, PM: 3, '': 2, AM: 1 };
   CHANNELS.forEach(c => {
     c.days.sort((a, b) => b.date.localeCompare(a.date) || (RANK[b.edition] ?? 2) - (RANK[a.edition] ?? 2));
     CH_BY_KEY[c.key] = c;
