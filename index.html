@@ -201,6 +201,10 @@ a.cite-plain{color:var(--accent);text-decoration:underline;
 /* "new since last visit" dots */
 .ndot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--accent);vertical-align:middle}
 .chan .ndot{width:6px;height:6px;margin-left:5px}
+/* Deep-Dive edition badge (the week's featured Sunday memo) */
+.dd-badge{display:inline-block;font:600 10px/1.7 var(--sans);letter-spacing:.7px;text-transform:uppercase;
+  color:var(--accent);background:var(--accent-soft);border-radius:999px;padding:0 8px;
+  vertical-align:middle;white-space:nowrap}
 /* topbar icon button (search) matches the theme toggle */
 .icon-btn{border:1px solid var(--line);background:var(--card);color:var(--muted);
   width:34px;height:34px;border-radius:9px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;padding:0}
@@ -407,7 +411,9 @@ function CH() { return CH_BY_KEY[activeKey] || CHANNELS[0]; }
 // #/<channel>/<id>       -> a reading view (id = 2026-06-30 or 2026-06-30-PM)
 function route() {
   closeDrawer();   // any open drawer (zoom / what-is-this / subscribe) shouldn't linger across nav
-  const m = (location.hash || '').match(/^#\/([a-z-]+)(?:\/(\d{4}-\d{2}-\d{2}(?:-(?:AM|PM))?))?$/);
+  // Edition-token list mirrors meta.py edition_pattern — keep in lockstep (a token missing
+  // here makes that edition's reading view silently fall back to the splash).
+  const m = (location.hash || '').match(/^#\/([a-z-]+)(?:\/(\d{4}-\d{2}-\d{2}(?:-(?:AM|PM|Deep-Dive))?))?$/);
   if (m && CH_BY_KEY[m[1]]) {
     if (activeKey !== m[1]) { activeKey = m[1]; resetChannelState(); }
     if (m[2] && CH().days.some(d => d.id === m[2])) {
@@ -434,8 +440,17 @@ function afterRoute(label) {
 
 function resetChannelState() { state.filter = null; state.showAllEntities = false; }
 
+// Edition suffix as HTML: Deep-Dive gets a styled badge (the week's featured memo), AM/PM stay
+// plain text. Dates and edition tokens come from the build's own filename regex, so these label
+// functions are HTML-safe by construction — call sites inject them WITHOUT esc().
+function editionSuffixHtml(ed, sep) {
+  if (!ed) return '';
+  if (ed === 'Deep-Dive') return ' <span class="dd-badge">Deep-Dive</span>';
+  return (sep || ' · ') + ed;
+}
+
 // "2026-06-30" + "PM" -> "2026-06-30 · PM"; legacy (no edition) -> just the date
-function editionLabel(d, sep) { return d.edition ? d.date + (sep || ' · ') + d.edition : d.date; }
+function editionLabel(d, sep) { return d.date + editionSuffixHtml(d.edition, sep); }
 
 // friendly splash date: "2026-07-01" + "PM" -> "Jul 1 · PM" (parsed manually to avoid TZ shifts)
 // MONTHS is inlined (not a module const) because init() runs before top-level consts initialize.
@@ -445,7 +460,7 @@ function prettyDate(iso) {
   return m ? MONTHS[+m[2] - 1] + ' ' + (+m[3]) : (iso || '');
 }
 function splashDateLabel(d) {
-  return d.edition ? prettyDate(d.date) + ' · ' + d.edition : prettyDate(d.date);
+  return prettyDate(d.date) + editionSuffixHtml(d.edition);
 }
 // long friendly date for the reading-view kicker: "2026-07-01" + "PM" -> "July 1, 2026 · PM"
 function prettyDateFull(iso) {
@@ -455,7 +470,7 @@ function prettyDateFull(iso) {
   return m ? M[+m[2] - 1] + ' ' + (+m[3]) + ', ' + m[1] : (iso || '');
 }
 function readKicker(d) {
-  return d.edition ? prettyDateFull(d.date) + ' · ' + d.edition : prettyDateFull(d.date);
+  return prettyDateFull(d.date) + editionSuffixHtml(d.edition);
 }
 
 function go(hash) { location.hash = hash; }
@@ -565,7 +580,7 @@ function renderSplash() {
     return `<a class="scard" href="#/${c.key}/${d.id}">
         <div class="s-meta">
           <span class="s-name">${esc(c.label)}${isNew(c.key, d.id) ? ' <span class="ndot"></span>' : ''}</span>
-          <span class="s-date">${esc(splashDateLabel(d))}</span>
+          <span class="s-date">${splashDateLabel(d)}</span>
         </div>
         <div class="s-head">${esc(d.headline)}</div>
       </a>`;
@@ -671,7 +686,7 @@ function openSearch() {
     if (!list.length) { results.innerHTML = '<p class="empty">No editions match.</p>'; return; }
     results.innerHTML = list.map(x =>
       `<a class="sr-row" href="#/${x.ch.key}/${x.d.id}" data-go="#/${x.ch.key}/${x.d.id}">` +
-        `<span class="sr-meta">${esc(x.ch.label)} · ${esc(splashDateLabel(x.d))}</span>` +
+        `<span class="sr-meta">${esc(x.ch.label)} · ${splashDateLabel(x.d)}</span>` +
         `<span class="sr-title">${esc(x.d.headline)}</span></a>`).join('');
     results.querySelectorAll('[data-go]').forEach(a =>
       a.addEventListener('click', e => { e.preventDefault(); closeDrawer(); go(a.dataset.go); }));
@@ -819,15 +834,15 @@ async function renderRead(id) {
   const older = idx >= 0 ? days[idx + 1] : null;   // older edition (further back)
   const newer = idx > 0 ? days[idx - 1] : null;    // newer edition
   const navHtml =
-    (older ? `<a class="ed-prev" href="#/${activeKey}/${older.id}">← ${esc(splashDateLabel(older))}</a>` : '<span></span>') +
-    (newer ? `<a class="ed-next" href="#/${activeKey}/${newer.id}">${esc(splashDateLabel(newer))} →</a>` : '<span></span>');
+    (older ? `<a class="ed-prev" href="#/${activeKey}/${older.id}">← ${splashDateLabel(older)}</a>` : '<span></span>') +
+    (newer ? `<a class="ed-next" href="#/${activeKey}/${newer.id}">${splashDateLabel(newer)} →</a>` : '<span></span>');
 
   document.getElementById('app').innerHTML = `
     <main id="main" class="wrap read" tabindex="-1">
       ${topbar()}
       <a class="back" href="#/${activeKey}" data-back>← All ${esc(CH().label)} briefings</a>
       <article class="article">
-        <div class="kicker">${esc(readKicker(d))}<span id="readtime"></span><button class="share-btn" data-share aria-label="Share this edition">Share</button></div>
+        <div class="kicker">${readKicker(d)}<span id="readtime"></span><button class="share-btn" data-share aria-label="Share this edition">Share</button></div>
         <h1 class="a-title">${esc(d.headline)}</h1>
         ${d.subtitle ? `<p class="a-sub">${esc(d.subtitle)}</p>` : ''}
         <div class="a-tags">${(d.topics || []).map(t => `<a class="tg" href="#" data-topic="${esc(t)}">${esc(TOPIC_LABEL[t] || cap(t))}</a>`).join('')}</div>
@@ -888,7 +903,7 @@ function stripTopMatter(md) {
 
 // rewrite Obsidian wikilinks: briefing links become internal read-view links; others -> plain label
 function preprocess(md) {
-  md = md.replace(/\[\[Daily Briefing \(([^)]+)\) - (\d{4}-\d{2}-\d{2})(?: \((AM|PM)\))?\|([^\]]+)\]\]/g,
+  md = md.replace(/\[\[Daily Briefing \(([^)]+)\) - (\d{4}-\d{2}-\d{2})(?: \((AM|PM|Deep-Dive)\))?\|([^\]]+)\]\]/g,
     (_, chan, date, ed, label) => {
       const key = LABEL_TO_KEY[chan.trim()] || activeKey;
       const id = ed ? date + '-' + ed : date;
