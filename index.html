@@ -75,6 +75,13 @@ a.brand:hover{text-decoration:none;opacity:.62}
 /* reserve 3 lines so every card is the same height regardless of headline length */
 .scard .s-head{flex:1;font:400 22px/1.35 var(--serif);color:var(--ink);min-height:4.05em}
 .scard-empty{opacity:.55;cursor:default}
+/* splash: one-line link to the week's Deep-Dive, tucked under a channel card */
+.scard-wrap{display:flex;flex-direction:column}
+.s-dd{display:flex;align-items:center;gap:9px;margin:5px 6px 0;padding:2px 22px;
+  font-size:13.5px;font-weight:500;color:var(--muted);min-width:0}
+.s-dd:hover{text-decoration:none;color:var(--ink)}
+.s-dd .s-dd-head{overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.s-dd-arrow{color:var(--accent);flex:0 0 auto}
 .splash-foot{display:flex;justify-content:flex-end;margin-top:12px}
 .whatis{border:1px solid var(--line);background:var(--card);color:var(--muted);
   font:500 13px var(--sans);padding:7px 13px;border-radius:9px;cursor:pointer}
@@ -85,6 +92,21 @@ a.brand:hover{text-decoration:none;opacity:.62}
   .scard{flex-direction:column;align-items:flex-start;gap:10px;padding:16px 18px}
   .scard .s-meta{flex:none}
   .scard .s-head{font-size:19px;min-height:0}
+}
+
+/* week-long Deep-Dive pin: compact card under the featured daily (channel list) */
+.pin-dd{display:flex;align-items:baseline;gap:16px;padding:14px 20px;margin:-4px 0 30px;
+  border:1px solid var(--line);border-radius:12px;background:var(--card);color:inherit}
+.pin-dd:hover{border-color:var(--faint);text-decoration:none}
+.pin-dd:hover .pin-title{color:var(--accent)}
+.pin-kicker{flex:0 0 auto;display:flex;align-items:center;gap:8px;color:var(--muted);
+  font-size:13px;font-weight:500;white-space:nowrap}
+.pin-title{flex:1;font:400 17.5px/1.4 var(--serif);color:var(--ink);
+  overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.pin-arrow{color:var(--accent);font-size:15px;flex:0 0 auto}
+@media(max-width:640px){
+  .pin-dd{flex-direction:column;gap:6px;padding:12px 14px}
+  .pin-title{white-space:normal}
 }
 
 /* filters */
@@ -577,13 +599,20 @@ function renderSplash() {
           <div class="s-meta"><span class="s-name">${esc(c.label)}</span>
           <span class="s-date">No editions yet</span></div></div>`;
     }
-    return `<a class="scard" href="#/${c.key}/${d.id}">
+    const dd = latestDeepDive(c.days);
+    const ddRow = dd && dd.id !== d.id
+      ? `<a class="s-dd" href="#/${c.key}/${dd.id}">
+           <span class="dd-badge">Deep-Dive</span>
+           <span class="s-dd-head">${esc(dd.headline)}</span>
+           <span class="s-dd-arrow">→</span>
+         </a>` : '';
+    return `<div class="scard-wrap"><a class="scard" href="#/${c.key}/${d.id}">
         <div class="s-meta">
           <span class="s-name">${esc(c.label)}${isNew(c.key, d.id) ? ' <span class="ndot"></span>' : ''}</span>
           <span class="s-date">${splashDateLabel(d)}</span>
         </div>
         <div class="s-head">${esc(d.headline)}</div>
-      </a>`;
+      </a>${ddRow}</div>`;
   }).join('');
 
   document.getElementById('app').innerHTML = `
@@ -765,6 +794,8 @@ function renderList() {
     : '';
 
   const featured = days[0] ? featuredCard(days[0]) : `<p class="empty">No briefings match this filter.</p>`;
+  const dd = f ? null : latestDeepDive(CH().days);
+  const pinned = dd && days[0] && dd.id !== days[0].id ? pinnedCard(dd) : '';
   const rest = days.slice(1).map(rowItem).join('');
 
   document.getElementById('app').innerHTML = `
@@ -782,6 +813,7 @@ function renderList() {
         ${activeNote}
       </section>
       ${featured}
+      ${pinned}
       ${rest ? `<div class="list">${rest}</div>` : ''}
     </main>`;
 
@@ -814,6 +846,24 @@ function featuredCard(d) {
       ${d.subtitle ? `<p class="f-sub">${esc(d.subtitle)}</p>` : ''}
       <div class="f-tags">${(d.topics || []).map(t => `<span class="tg">${esc(TOPIC_LABEL[t] || cap(t))}</span>`).join('')}</div>
       <span class="keepreading">Keep reading →</span>
+    </a>`;
+}
+
+// Week-long Deep-Dive pin: the latest weekly memo stays discoverable below the featured
+// daily until the next Sunday memo replaces it (8-day freshness window). Callers skip it
+// when the memo IS the newest edition, so it never double-shows with the featured card.
+function latestDeepDive(days) {
+  const dd = (days || []).find(d => d.edition === 'Deep-Dive');
+  if (!dd) return null;
+  const ageDays = (Date.now() - new Date(dd.date + 'T12:00:00')) / 86400000;
+  return ageDays <= 8 ? dd : null;
+}
+
+function pinnedCard(d) {
+  return `<a class="pin-dd" href="#/${activeKey}/${d.id}" data-id="${d.id}">
+      <span class="pin-kicker"><span class="dd-badge">Deep-Dive</span> ${prettyDate(d.date)}</span>
+      <span class="pin-title">${esc(d.headline)}</span>
+      <span class="pin-arrow">→</span>
     </a>`;
 }
 
