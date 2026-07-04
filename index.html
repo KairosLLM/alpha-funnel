@@ -908,9 +908,20 @@ function buildTOC(body) {
     const strong = el.firstElementChild;
     if (!strong || strong.tagName !== 'STRONG' || el.firstChild !== strong) return;
     const label = strong.textContent.trim().replace(/[.:]\s*$/, '');
-    if (!label || label.length > 90) return;
+    // Numbered leads ("1. …") are unambiguously section headers — keep them even when the
+    // sentence runs long. Only the length cap (which guards against stray bold emphasis) applies
+    // to un-numbered leads.
+    const numbered = /^\d+\.\s/.test(label);
+    if (!label || (!numbered && label.length > 90)) return;
     el.id = 'sec-' + i;
-    secs.push({ id: el.id, label });
+    // Tidy an over-long lead-in for the jump list: cut at the first clause break, else ellipsize.
+    let display = label;
+    if (label.length > 72) {
+      const head = label.slice(0, 72);
+      const comma = head.lastIndexOf(', ');
+      display = (comma > 24 ? head.slice(0, comma) : head.replace(/\s+\S*$/, '')) + '…';
+    }
+    secs.push({ id: el.id, label: display });
   });
   if (secs.length < 3) return;
   const toc = document.createElement('nav');
