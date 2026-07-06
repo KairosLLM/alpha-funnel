@@ -66,7 +66,7 @@ a.brand:hover{text-decoration:none;opacity:.62}
 .wrap.splash{min-height:100dvh;display:flex;flex-direction:column;padding-bottom:22px;overflow:visible}
 .splash-main{flex:1;min-height:0;display:flex;align-items:flex-start;justify-content:center;padding:4px 0}
 .splash-inner{width:100%}
-.splash-cards{display:grid;grid-template-columns:1fr;gap:10px}
+.splash-cards{display:grid;grid-template-columns:minmax(0,1fr);gap:10px}
 .scard{display:flex;align-items:center;gap:26px;padding:20px 28px;
   border:1px solid var(--line);border-radius:16px;overflow:hidden;
   background:var(--card);color:var(--ink);
@@ -85,7 +85,7 @@ a.brand:hover{text-decoration:none;opacity:.62}
 .s-dd{display:flex;align-items:center;gap:9px;margin:5px 6px 0;padding:2px 22px;
   font-size:13.5px;font-weight:500;color:var(--muted);min-width:0}
 .s-dd:hover{text-decoration:none;color:var(--ink)}
-.s-dd .s-dd-head{overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.s-dd .s-dd-head{flex:1;min-width:0;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
 .s-dd-arrow{color:var(--accent);flex:0 0 auto}
 .splash-foot{display:flex;justify-content:flex-end;margin-top:12px}
 .whatis{border:1px solid var(--line);background:var(--card);color:var(--muted);
