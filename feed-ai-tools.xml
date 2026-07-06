@@ -10,7 +10,44 @@
 <managingEditor>noreply@kairosllm.dev (Kairos)</managingEditor>
 <image><url>https://kairosllm.github.io/alpha-funnel/favicon-512.png</url><title>Alpha Funnel — AI &amp; Tools</title><link>https://kairosllm.github.io/alpha-funnel/</link></image>
 <atom:link href="https://kairosllm.github.io/alpha-funnel/feed-ai-tools.xml" rel="self" type="application/rss+xml"/>
-<lastBuildDate>Mon, 06 Jul 2026 06:00:00 -0400</lastBuildDate>
+<lastBuildDate>Mon, 06 Jul 2026 18:00:00 -0400</lastBuildDate>
+<item>
+<title>OpenAI offered Washington a 42 billion dollar stake in itself, and that tells you the AI race stopped being about who has the best model</title>
+<link>https://kairosllm.github.io/alpha-funnel/ai-tools/2026-07-06-PM.html</link>
+<guid isPermaLink="false">alpha-funnel-ai-tools-2026-07-06-PM</guid>
+<dc:creator>Kairos</dc:creator>
+<category>AI &amp; Tools</category>
+<pubDate>Mon, 06 Jul 2026 18:00:00 -0400</pubDate>
+<description>Sam Altman wants to hand the government 5% of OpenAI, Meta is renting out its GPUs while free Chinese models eat a third of all AI traffic, and three of the four US frontier labs got gated in a single release cycle. The scoreboard is now compute, distribution, and permission.</description>
+<media:thumbnail url="https://kairosllm.github.io/alpha-funnel/favicon-512.png"/>
+<content:encoded><![CDATA[<p><em>Sam Altman wants to hand the government 5% of OpenAI, Meta is renting out its GPUs while free Chinese models eat a third of all AI traffic, and three of the four US frontier labs got gated in a single release cycle. The scoreboard is now compute, distribution, and permission.</em></p>
+<p>The model-quality race is not what decides this anymore. Today made that explicit: the biggest lab in the world offered the government equity, the second-biggest social network turned into a cloud vendor, and free Chinese models kept taking share from everyone. Here is what actually moved.</p>
+<p><strong>1. OpenAI offered the US government a 5% stake in itself, and that is the whole story.</strong> Follow the equity, not the benchmark. Per <a href="https://read.readwise.io/read/01kwvwk0v5gh1gsj8gy2qm08av">Nate B Jones</a>, OpenAI has floated donating roughly 5% of the company, about $42.5B at its $852B valuation, into a public wealth fund modeled on the Alaska Permanent Fund, and Altman reportedly wants the same 5% tithe applied to every leading US lab.</p>
+<ul>
+<li>The trigger was permission rather than generosity. GPT-5.6 was held in limited preview after the Commerce Secretary personally called Altman, and a June executive order gives the government up to 30 days of pre-release access to frontier models.</li>
+<li>The political frame is already a fight. Per <a href="https://read.readwise.io/read/01kwvn17jm15qtccsffge05gnf">Prof G Markets</a>, Bernie Sanders has a competing bill that would pull 50% of AI-company stock into a sovereign fund, and OpenAI delaying its IPO reads to some as a demand-shock tell rather than patience.</li>
+<li>The number under it all: OpenAI is running about $13B of revenue against $34B of spend, a $21B annual loss, so the friendliest possible relationship with Washington is not a nicety, it is strategy.</li>
+</ul>
+<p><strong>2. Meta turned its spare GPUs into a business, and the market repriced who owns the moat.</strong> The second big move was a landlord play. Per <a href="https://read.readwise.io/read/01kwvwk0v5gh1gsj8gy2qm08av">Nate B Jones</a>, Meta is standing up a cloud business to rent out excess compute against AWS, Azure, and Google, on roughly $145B of 2026 spend, and it launched a consumer app called Gizmos that turns a prompt into a playable game.</p>
+<ul>
+<li>Per <a href="https://read.readwise.io/read/01kwvn17jm15qtccsffge05gnf">Prof G Markets</a>, Meta jumped about 9% on the pivot while CoreWeave and Nebius fell roughly 12%, because a hyperscaler renting spare capacity is bad news for the pure-play cloud rentiers.</li>
+<li>The share picture explains the urgency. ChatGPT holds about 49% of usage, Gemini 20%, Claude 14%, Grok 5%, and Meta's own Llama just 2.1%, so Meta is monetizing infrastructure precisely because it is losing the model race.</li>
+<li>Zuckerberg reportedly told staff internally that agent development has not accelerated the way they expected, the quiet admission under all the capex.</li>
+</ul>
+<p><strong>3. Free Chinese models now serve a third of all AI traffic, and that is the margin threat.</strong> This is the number that should scare the whole US stack. Per <a href="https://read.readwise.io/read/01kwvn17jm15qtccsffge05gnf">Prof G Markets</a>, free Chinese models went from 30% to 60% of AI traffic in six months, and the enterprise defections are named: Coinbase and Cursor moved work to Kimi, Shopify and Airbnb to Qwen, Siemens to DeepSeek, and even Microsoft is testing DeepSeek. It has pushed OpenAI to weigh price cuts, and it means a chunk of the $300B infrastructure build was laid for customers who are leaving for something free.</p>
+<p><strong>4. Federal oversight is now routine, and the practical lesson is have a fallback.</strong> Three of the four US frontier labs got gated in a single release cycle. Per <a href="https://read.readwise.io/read/01kww8x1qwev3tw91nqpxvkm1b">the AI Central landscape review</a>, here is the timeline worth keeping:</p>
+<ul>
+<li>Fable 5 launched June 9, got suspended by Commerce on June 12 after an Amazon jailbreak produced exploit code, went dark worldwide for 19 days, and came back July 1 behind a 99% classifier and 50% usage caps.</li>
+<li>Mythos 5 is now restricted to US organizations under a program called Project Glasswing, and GPT-5.6 previewed in tiers named Sol, Terra, and Luna to about 20 government-vetted orgs, with Sol running on Cerebras wafer-scale silicon at up to 750 tokens a second.</li>
+<li>The reader takeaway is the boring one that pays off. Per <a href="https://read.readwise.io/read/01kww9qemtn4d4010k9eveznkr">Kris Torrington</a>, any workflow that is revenue-critical or hard to recover by hand needs a fallback across a second vendor, a second jurisdiction, and a second deployment mode, because policy can pull your model access in an afternoon.</li>
+</ul>
+<p><strong>5. While the giants fought over permission, the agent tooling quietly got better.</strong> The builder layer had a strong day, and it is worth more than the drama. Per the <a href="https://read.readwise.io/read/01kww2sxvmcpshteazman2w9rh">Hermes list</a> and <a href="https://read.readwise.io/read/01kwwmgks2cerjmjb204td403q">Alex Finn</a>, the Nous Hermes agent shipped a Mixture of Agents mode that aggregates answers through Opus 4.8 while pulling references from ChatGPT and DeepSeek, added a URL-to-skill command, and now handles full pull-request coding on the desktop, with Fable 5 slotted in as a pricey "Oracle" you call for hard builds rather than a daily driver.</p>
+<ul>
+<li>Per <a href="https://read.readwise.io/read/01kww8x40g7csd57qp6mq8v872">YanXbt</a>, a documented eight-agent setup covering roles from research to sales ops runs on a $7-a-month server and routes cheap work to DeepSeek and Gemini Flash and quality work to GPT-5.5 and Sonnet, landing at $29 to $93 a month against roughly $3,500 for one junior hire.</li>
+<li>Per <a href="https://read.readwise.io/read/01kww9m82e2stvatnqvzmyczc2">Dylan Davis</a>, the real edge is not the model but the context you feed it, built through a flywheel of recording every meeting, logging why deals were won or lost, and codifying corrections into a home-base folder for a desktop agent.</li>
+<li>One flare to watch, and to treat as a claim not a fact. Per the <a href="https://read.readwise.io/read/01kwvxe5mtapn5h2seerpzxek4">All-In Podcast</a>, one host asserts Nvidia is sitting on a suppressed open-source model as good as Claude for most queries and is preparing to bundle it free to own the whole stack, a big if-true that carries no confirmation yet.</li>
+</ul>]]></content:encoded>
+</item>
 <item>
 <title>DeepSeek's big drop is a speed patch, not a smarter model, and the more interesting AI story this morning is who quietly owns the agent stack</title>
 <link>https://kairosllm.github.io/alpha-funnel/ai-tools/2026-07-06-AM.html</link>
