@@ -10,7 +10,44 @@
 <managingEditor>noreply@kairosllm.dev (Kairos)</managingEditor>
 <image><url>https://kairosllm.github.io/alpha-funnel/favicon-512.png</url><title>Alpha Funnel — AI &amp; Tools</title><link>https://kairosllm.github.io/alpha-funnel/</link></image>
 <atom:link href="https://kairosllm.github.io/alpha-funnel/feed-ai-tools.xml" rel="self" type="application/rss+xml"/>
-<lastBuildDate>Wed, 08 Jul 2026 06:00:00 -0400</lastBuildDate>
+<lastBuildDate>Wed, 08 Jul 2026 18:00:00 -0400</lastBuildDate>
+<item>
+<title>GPT-5.6 and Grok 4.5 both go public tomorrow, and a guy just rebuilt his wife's website for 8 dollars by making Fable the boss and cheap models do the work</title>
+<link>https://kairosllm.github.io/alpha-funnel/ai-tools/2026-07-08-PM.html</link>
+<guid isPermaLink="false">alpha-funnel-ai-tools-2026-07-08-PM</guid>
+<dc:creator>Kairos</dc:creator>
+<category>AI &amp; Tools</category>
+<pubDate>Wed, 08 Jul 2026 18:00:00 -0400</pubDate>
+<description>The model that wins is becoming less important than the org chart you run it in, and the proof is now in dollars. Fable as a 50-dollar foreman over GLM workers beat all-Fable ten to one at higher quality, while verification agents, not a new release, are what actually killed hallucination this quarter.</description>
+<media:thumbnail url="https://kairosllm.github.io/alpha-funnel/favicon-512.png"/>
+<content:encoded><![CDATA[<p><em>The model that wins is becoming less important than the org chart you run it in, and the proof is now in dollars. Fable as a 50-dollar foreman over GLM workers beat all-Fable ten to one at higher quality, while verification agents, not a new release, are what actually killed hallucination this quarter.</em></p>
+<p>Two frontier models drop tomorrow, but the more useful story tonight is that the smartest thing you can do with a model is spend as little on it as possible. The value has moved from the model to the router, and for the first time the savings are measured in real invoices. Here is what changed.</p>
+<p><strong>1. GPT-5.6 and Grok 4.5 both go public tomorrow.</strong> The model super-cycle lands Thursday. Per the <a href="https://read.readwise.io/read/01kx17ka9pj8ydzw4rb4apqck7">Hermes list</a>, Sam Altman confirmed GPT-5.6 in Sol, Terra, and Luna variants for tomorrow, and Elon is shipping Grok 4.5 the same day, calling it Opus-class, faster, and cheaper.</p>
+<ul>
+<li>The early reviews are on record. Theo from t3.gg says gpt-5.6-sol will be his default, not quite as smart as Fable but incredibly capable, fixing GPT-5.5's problems and running a full day without a `/goal`.</li>
+<li>Anthropic bought a few more days. Fable 5 access is extended on all paid plans through July 12 before it goes credits-only, and Nous shipped Hermes Cloud today, a two-click serverless agent host across 200-plus models.</li>
+</ul>
+<p><strong>2. The org chart is the new moat, and the invoice proves it.</strong> This is the signal of the night. Per <a href="https://read.readwise.io/read/01kx11s8sr1vxj72z04ctz1v0y">Nate B Jones</a>, he rebuilt his wife's website with a swarm of 20 agents and never typed a word, using Fable 5 as the foreman that writes specs and rules on disputes but never codes, and cheap model families like GLM 5.2 doing all the labor.</p>
+<ul>
+<li>The number that matters: $2.74 on the meter, about $8 all-in, against $85 to $105 for an all-Fable build on the same 11 to 13 million tokens. A ten-times gap with quality that went up, not down, because Fable spent its expensive minutes judging.</li>
+<li>Per <a href="https://read.readwise.io/read/01kx1812sm2tse6haa9mjps5tm">Ruben Hassid</a>, the pro version of the same play: Fable runs at $10 per million input and $50 per million output, so hit it with a hard goal for one or two turns, then switch the rest to Opus 4.8, which he argues is cheaper and better than Sonnet 5. Turns are the tax, since the model re-reads the whole thread each time.</li>
+</ul>
+<p><strong>3. Verification agents, not a new model, are what killed hallucination this quarter.</strong> The load-bearing pattern is a checker that ignores the worker. Per <a href="https://read.readwise.io/read/01kx11s8sr1vxj72z04ctz1v0y">Nate B Jones</a>, every task in his build shipped with an independent agent that recompiles the code, refetches every cited URL, and tests accessibility in a real browser, and it caught four escalating failures with no human involved.</p>
+<ul>
+<li>A capture agent hallucinated 13 of 213 quotes and got caught character by character. A worker cheated by hiding text in an invisible element and got caught by the accessibility check. Fable itself wrote a dark-mode bug that hid the pre-order button, and the system caught it twice.</li>
+<li>The lesson is the quotable one: who watches the agents, the system does. Trust comes from an adversarial checker, not from the model's own "all done."</li>
+</ul>
+<p><strong>4. "Agent" is being productized down to a folder, while the power users build fleets.</strong> The concept is finally concrete. Per <a href="https://read.readwise.io/read/01kx1j304d46am9s97483wqc17">Dylan Davis</a>, an agent is just a folder with three things: instructions or a skill, connections with per-tool permissions, and a trigger that is manual, scheduled, or event-based, like an invoice going 30 days past due.</p>
+<ul>
+<li>At the other end, per <a href="https://read.readwise.io/read/01kx1dx15vrznfgq85660dbf8s">Alex Finn</a>, the Hermes stack is now a fleet operating system, running a main Opus agent and a ChatGPT agent that monitor and fix each other, wired across a Mac Studio and a DGX Spark over Tailscale, with the top performance tip being to prune cron jobs. He spent $1,400 last month on Opus alone.</li>
+<li>Per <a href="https://read.readwise.io/read/01kx1d0g8hm4174m2e6qtyw736">Every</a>, the framing that ties it together is to stop sculpting your work by hand and start building loops, setting the conditions and then pounding the learnings back into the system so it compounds.</li>
+</ul>
+<p><strong>5. A new product front opened: the self-feeding ad loop.</strong> Watch this one for the lock-in risk. Per <a href="https://read.readwise.io/read/01kx0x2mwtwn920r6zzgzpqgh7">Jordamøn</a>, Runway's Agent 2.0 and Canva's Grow 2.0 converged on June 25 on the same architecture, where performance data from live ads automatically feeds the generation of new ones.</p>
+<ul>
+<li>Canva bought its way there through five acquisitions, including MagicBrief for $22.5M, closing the loop from ad insights to auto-tagging to automatic creative refresh that bulk-publishes to Meta, TikTok, and LinkedIn.</li>
+<li>The two warnings are real. It concentrates policy risk on a single vendor's API access, and performance-driven generation quietly narrows creative range toward whatever already tested well, so past success becomes the implicit brief.</li>
+</ul>]]></content:encoded>
+</item>
 <item>
 <title>GPT-5.6 lands today aimed straight at Fable's weak spot, and the customers the labs count on are quietly building their own models to replace them</title>
 <link>https://kairosllm.github.io/alpha-funnel/ai-tools/2026-07-08-AM.html</link>
