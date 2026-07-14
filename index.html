@@ -86,6 +86,7 @@ a.brand:hover{text-decoration:none;opacity:.62}
   font-size:13.5px;font-weight:500;color:var(--muted);min-width:0}
 .s-dd:hover{text-decoration:none;color:var(--ink)}
 .s-dd .s-dd-head{flex:1;min-width:0;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.s-dd .s-dd-date{flex:0 0 auto;font-size:12px;color:var(--muted);white-space:nowrap}
 .s-dd-arrow{color:var(--accent);flex:0 0 auto}
 .splash-foot{display:flex;justify-content:flex-end;margin-top:12px}
 .whatis{border:1px solid var(--line);background:var(--card);color:var(--muted);
@@ -307,6 +308,54 @@ kbd{font:600 12px var(--sans);background:var(--chip);color:var(--ink);border:1px
   .filter-group{flex-direction:column;gap:6px}
 }
 
+/* ---------- entity thread (cross-channel history) ---------- */
+.thread-head{margin:6px 0 18px}
+.th-title{font:600 30px/1.2 var(--serif);color:var(--ink);margin:2px 0 6px;word-break:break-word}
+.th-meta{font-size:13.5px;color:var(--muted)}
+.thread-list{border-top:1px solid var(--line)}
+.th-row{display:flex;gap:16px;align-items:baseline;color:inherit;padding:13px 2px;
+  border-bottom:1px solid var(--line2)}
+.th-row:hover{text-decoration:none}
+.th-row:hover .th-head{color:var(--accent)}
+.th-date{flex:0 0 118px;font-size:13px;color:var(--faint);font-variant-numeric:tabular-nums}
+.th-ch{flex:0 0 84px;font:600 10.5px/1.6 var(--sans);letter-spacing:.5px;text-transform:uppercase;
+  color:var(--muted)}
+.th-ch-investing{color:var(--accent)}
+.th-head{flex:1;min-width:0;font:500 17px/1.4 var(--serif)}
+@media (max-width:560px){
+  .th-row{flex-wrap:wrap;gap:4px 12px}
+  .th-head{flex-basis:100%}
+}
+
+/* reading-view "Tracked" entity row */
+.mentions{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:12px 0 0}
+.mentions-label{font:600 10.5px/1 var(--sans);letter-spacing:.7px;text-transform:uppercase;color:var(--faint)}
+.ment{font-size:12.5px;color:var(--accent);border:1px solid var(--line);border-radius:6px;padding:2px 8px}
+.ment:hover{border-color:var(--accent);background:var(--accent-soft);text-decoration:none}
+
+.thread-link{color:var(--accent);margin-left:2px}
+.thread-link:hover{text-decoration:underline}
+
+/* ---------- rising / cooling strip ---------- */
+.rising{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:0 0 22px;
+  padding:12px 0 0;border-top:1px solid var(--line2)}
+.rising-label{font:600 10.5px/1 var(--sans);letter-spacing:.7px;text-transform:uppercase;color:var(--faint)}
+.rising-label.cool{margin-left:10px}
+.rise{display:inline-flex;align-items:center;gap:5px;font-size:12.5px;color:var(--ink);
+  border:1px solid var(--line);border-radius:999px;padding:3px 10px}
+.rise:hover{border-color:var(--faint);text-decoration:none}
+.rise-d{font:600 11px var(--sans);font-variant-numeric:tabular-nums}
+.rise.up .rise-d{color:#2f8f4e}
+.rise.dn{color:var(--muted)}
+.rise.dn .rise-d{color:#b4553b}
+:root[data-theme="dark"] .rise.up .rise-d{color:#57c07a}
+:root[data-theme="dark"] .rise.dn .rise-d{color:#e0785c}
+
+/* ---------- search snippets ---------- */
+.sr-count{font-size:12px;color:var(--muted);margin:2px 0 8px}
+.sr-snip{font-size:12.5px;line-height:1.5;color:var(--muted);margin-top:2px}
+.sr-snip mark{background:var(--accent-soft);color:var(--ink);border-radius:3px;padding:0 2px}
+
 </style><script>
 /**
  * marked v12.0.0 - a markdown parser
@@ -356,6 +405,8 @@ let DEEP = null;               // standalone: {id: md}; served: null (fetch on d
 
 let state = { filter: null, showAllEntities: false }; // filter = {kind:'topic'|'entity', value} | null
 let SEEN = new Set();   // "key/id" of editions already opened (persisted to localStorage af-seen)
+let ENTITY_INDEX = new Map();    // entity display name -> [{ch, d}] newest-first (built in init)
+let SLUG_TO_ENTITY = new Map();  // url slug -> entity display name
 
 const elDrawer = () => document.getElementById('drawer');
 const elScrim = () => document.getElementById('scrim');
@@ -395,6 +446,7 @@ async function init() {
     c.days.sort((a, b) => b.date.localeCompare(a.date) || (RANK[b.edition] ?? 2) - (RANK[a.edition] ?? 2));
     CH_BY_KEY[c.key] = c;
   });
+  buildEntityIndex();
   activeKey = CHANNELS[0].key; // default channel (Investing)
   loadSeen();
 
@@ -438,6 +490,12 @@ function CH() { return CH_BY_KEY[activeKey] || CHANNELS[0]; }
 // #/<channel>/<id>       -> a reading view (id = 2026-06-30 or 2026-06-30-PM)
 function route() {
   closeDrawer();   // any open drawer (zoom / what-is-this / subscribe) shouldn't linger across nav
+  // #/e/<slug> -> a cross-channel entity thread (all editions that mentioned it, chronological).
+  const em = (location.hash || '').match(/^#\/e\/([a-z0-9-]+)$/);
+  if (em && SLUG_TO_ENTITY.has(em[1])) {
+    renderEntityThread(em[1]); window.scrollTo(0, 0);
+    afterRoute(SLUG_TO_ENTITY.get(em[1]) + ' — all mentions'); return;
+  }
   // Edition-token list mirrors meta.py edition_pattern — keep in lockstep (a token missing
   // here makes that edition's reading view silently fall back to the splash).
   const m = (location.hash || '').match(/^#\/([a-z-]+)(?:\/(\d{4}-\d{2}-\d{2}(?:-(?:AM|PM|Deep-Dive))?))?$/);
@@ -586,6 +644,79 @@ function filteredDays() {
   return days.filter(d => (d[key] || []).includes(value));
 }
 
+/* ---------- entity history index (cross-channel threads) ----------
+   Built once in init() from the in-memory CHANNELS. Every tagged entity gets a
+   chronological trail of the editions that mentioned it, across all channels —
+   the "story so far" for a ticker or name. Pure metadata: no bodies needed.
+   (ENTITY_INDEX / SLUG_TO_ENTITY are declared up top so init() can populate them.) */
+
+// Slugify an entity for the hash route: "$MU" -> "mu", "Strait of Hormuz" -> "strait-of-hormuz".
+function entitySlug(name) {
+  return String(name).toLowerCase().replace(/\$/g, '')
+    .replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+}
+
+function buildEntityIndex() {
+  ENTITY_INDEX = new Map();
+  SLUG_TO_ENTITY = new Map();
+  CHANNELS.forEach(c => c.days.forEach(d => (d.entities || []).forEach(name => {
+    if (!ENTITY_INDEX.has(name)) ENTITY_INDEX.set(name, []);
+    ENTITY_INDEX.get(name).push({ ch: c, d });
+  })));
+  const RANK = { 'Deep-Dive': 4, PM: 3, '': 2, AM: 1 };
+  for (const [name, list] of ENTITY_INDEX) {
+    list.sort((a, b) => b.d.date.localeCompare(a.d.date) || (RANK[b.d.edition] ?? 2) - (RANK[a.d.edition] ?? 2));
+    const slug = entitySlug(name);
+    if (slug && !SLUG_TO_ENTITY.has(slug)) SLUG_TO_ENTITY.set(slug, name);   // first name wins on rare slug clash
+  }
+}
+
+// Reading-view "Tracked" row: entity chips that deep-link to each entity's thread.
+function entityMentionsRow(d) {
+  const ents = (d.entities || []).filter(e => SLUG_TO_ENTITY.has(entitySlug(e)));
+  if (!ents.length) return '';
+  return `<div class="mentions"><span class="mentions-label">Tracked</span>` +
+    ents.map(e => `<a class="ment" href="#/e/${entitySlug(e)}">${esc(e)}</a>`).join('') + `</div>`;
+}
+
+/* ---------- rising / cooling (mention momentum) ----------
+   Entity mention-count delta over the newest 7 days vs the prior 7, within a channel.
+   Anchored to the newest edition date (not wall-clock) so it is stable and testable. */
+function risingEntities(days) {
+  if (!days.length) return [];
+  const DAY = 86400000;
+  const anchor = new Date(days[0].date + 'T12:00:00');   // days are newest-first
+  const cutThis = new Date(anchor.getTime() - 7 * DAY);
+  const cutPrior = new Date(anchor.getTime() - 14 * DAY);
+  const count = (from, to) => {
+    const m = new Map();
+    days.forEach(d => {
+      const t = new Date(d.date + 'T12:00:00');
+      if (t > from && t <= to) (d.entities || []).forEach(e => m.set(e, (m.get(e) || 0) + 1));
+    });
+    return m;
+  };
+  const now = count(cutThis, anchor), prior = count(cutPrior, cutThis);
+  const names = new Set([...now.keys(), ...prior.keys()]);
+  return [...names].map(e => ({ e, delta: (now.get(e) || 0) - (prior.get(e) || 0), now: now.get(e) || 0 }));
+}
+
+// Search snippet: ~150-char window around the first matching token, tokens marked. Input is
+// raw text; we escape the slice THEN inject <mark> so bodies can't break out into markup.
+function searchSnippet(text, toks) {
+  const low = text.toLowerCase();
+  let pos = -1;
+  for (const t of toks) { const i = low.indexOf(t); if (i >= 0 && (pos < 0 || i < pos)) pos = i; }
+  if (pos < 0) return '';
+  const start = Math.max(0, pos - 60), end = Math.min(text.length, pos + 90);
+  let s = esc((start > 0 ? '…' : '') + text.slice(start, end).replace(/\s+/g, ' ').trim() + (end < text.length ? '…' : ''));
+  toks.forEach(t => {
+    const re = new RegExp('(' + t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')', 'ig');
+    s = s.replace(re, '<mark>$1</mark>');
+  });
+  return s;
+}
+
 function setFilter(kind, value) {
   if (state.filter && state.filter.kind === kind && state.filter.value === value) state.filter = null;
   else state.filter = { kind, value };
@@ -598,7 +729,7 @@ function setFilter(kind, value) {
 // Minimal landing: one card per channel, each linking to that channel's newest edition.
 function renderSplash() {
   const cards = CHANNELS.map(c => {
-    const d = c.days[0];               // days are sorted newest-first in init()
+    const d = c.days.find(x => x.edition !== 'Deep-Dive') || c.days[0];  // hero = newest non-Deep-Dive briefing
     if (!d) {
       return `<div class="scard scard-empty">
           <div class="s-meta"><span class="s-name">${esc(c.label)}</span>
@@ -609,6 +740,7 @@ function renderSplash() {
       ? `<a class="s-dd" href="#/${c.key}/${dd.id}">
            <span class="dd-badge">Deep-Dive</span>
            <span class="s-dd-head">${esc(dd.headline)}</span>
+           <span class="s-dd-date">${prettyDate(dd.date)}</span>
            <span class="s-dd-arrow">→</span>
          </a>` : '';
     return `<div class="scard-wrap"><a class="scard" href="#/${c.key}/${d.id}">
@@ -708,20 +840,29 @@ function openSearch() {
     '<div class="search-results" id="searchResults"></div>';
   const input = body.querySelector('.search-input');
   const results = body.querySelector('#searchResults');
-  const all = CHANNELS.flatMap(c => c.days.map(d => ({
-    ch: c, d,
-    hay: [d.headline, d.subtitle, ...(d.topics || []).map(t => TOPIC_LABEL[t] || t), ...(d.entities || [])].join(' ').toLowerCase()
-  })));
+  // Full-text where bodies are in memory (published standalone embeds them); metadata-only otherwise.
+  const all = CHANNELS.flatMap(c => c.days.map(d => {
+    const text = [d.headline, d.subtitle || '', d.body || ''].join('  ');
+    return {
+      ch: c, d, text,
+      hay: (text + ' ' + (d.topics || []).map(t => TOPIC_LABEL[t] || t).join(' ') + ' ' + (d.entities || []).join(' ')).toLowerCase()
+    };
+  }));
   const render = () => {
     const q = input.value.trim().toLowerCase();
-    let list = all;
-    if (q) { const toks = q.split(/\s+/); list = all.filter(x => toks.every(t => x.hay.includes(t))); }
+    const toks = q ? q.split(/\s+/) : [];
+    let list = toks.length ? all.filter(x => toks.every(t => x.hay.includes(t))) : all;
+    const total = list.length;
     list = list.slice(0, 25);
     if (!list.length) { results.innerHTML = '<p class="empty">No editions match.</p>'; return; }
-    results.innerHTML = list.map(x =>
-      `<a class="sr-row" href="#/${x.ch.key}/${x.d.id}" data-go="#/${x.ch.key}/${x.d.id}">` +
+    const count = q ? `<div class="sr-count">${total} edition${total === 1 ? '' : 's'} match${total === 1 ? 'es' : ''}</div>` : '';
+    results.innerHTML = count + list.map(x => {
+      const snip = q ? searchSnippet(x.text, toks) : '';
+      return `<a class="sr-row" href="#/${x.ch.key}/${x.d.id}" data-go="#/${x.ch.key}/${x.d.id}">` +
         `<span class="sr-meta">${esc(x.ch.label)} · ${splashDateLabel(x.d)}</span>` +
-        `<span class="sr-title">${esc(x.d.headline)}</span></a>`).join('');
+        `<span class="sr-title">${esc(x.d.headline)}</span>` +
+        (snip ? `<span class="sr-snip">${snip}</span>` : '') + `</a>`;
+    }).join('');
     results.querySelectorAll('[data-go]').forEach(a =>
       a.addEventListener('click', e => { e.preventDefault(); closeDrawer(); go(a.dataset.go); }));
   };
@@ -792,16 +933,36 @@ function renderList() {
       (state.showAllEntities ? 'show fewer' : `show all (${entities.length})`) + `</button>`;
   }
 
+  const threadLink = f && f.kind === 'entity' && SLUG_TO_ENTITY.has(entitySlug(f.value))
+    ? `<a class="thread-link" href="#/e/${entitySlug(f.value)}">full thread →</a> ` : '';
   const activeNote = f
     ? `<div class="filter-note">Filtered to <strong>${esc(f.kind === 'topic' ? (TOPIC_LABEL[f.value] || cap(f.value)) : f.value)}</strong>` +
       ` — ${days.length} briefing${days.length === 1 ? '' : 's'} ` +
+      threadLink +
       `<button class="clear" data-act="clear">clear ✕</button></div>`
     : '';
 
-  const featured = days[0] ? featuredCard(days[0]) : `<p class="empty">No briefings match this filter.</p>`;
+  // Rising / cooling momentum strip (unfiltered view only).
+  const mom = f ? [] : risingEntities(CH().days);
+  const up = mom.filter(x => x.delta > 0).sort((a, b) => b.delta - a.delta || b.now - a.now).slice(0, 6);
+  const down = mom.filter(x => x.delta < 0).sort((a, b) => a.delta - b.delta).slice(0, 3);
+  const riseChip = (x, dir) =>
+    `<a class="rise ${dir}" href="#/e/${entitySlug(x.e)}">${esc(x.e)}` +
+    `<span class="rise-d">${dir === 'up' ? '▲' : '▼'}${Math.abs(x.delta)}</span></a>`;
+  const risingHtml = up.length
+    ? `<section class="rising" aria-label="Rising and cooling mentions this week">
+        <span class="rising-label">Rising</span>${up.map(x => riseChip(x, 'up')).join('')}` +
+      (down.length ? `<span class="rising-label cool">Cooling</span>${down.map(x => riseChip(x, 'dn')).join('')}` : '') +
+      `</section>`
+    : '';
+
+  // Hero is the newest non-Deep-Dive edition, so a Sunday memo never displaces the day's AM/PM run.
+  const heroDay = days.find(d => d.edition !== 'Deep-Dive') || days[0];
+  const featured = heroDay ? featuredCard(heroDay) : `<p class="empty">No briefings match this filter.</p>`;
   const dd = f ? null : latestDeepDive(CH().days);
-  const pinned = dd && days[0] && dd.id !== days[0].id ? pinnedCard(dd) : '';
-  const rest = days.slice(1).map(rowItem).join('');
+  const pinned = dd && (!heroDay || dd.id !== heroDay.id) ? pinnedCard(dd) : '';
+  const shown = new Set([heroDay && heroDay.id, pinned && dd.id].filter(Boolean));
+  const rest = days.filter(d => !shown.has(d.id)).map(rowItem).join('');
 
   document.getElementById('app').innerHTML = `
     <main id="main" class="wrap" tabindex="-1">
@@ -817,6 +978,7 @@ function renderList() {
         </div>
         ${activeNote}
       </section>
+      ${risingHtml}
       ${featured}
       ${pinned}
       ${rest ? `<div class="list">${rest}</div>` : ''}
@@ -879,6 +1041,42 @@ function rowItem(d) {
     </a>`;
 }
 
+/* ---------- entity thread (the story so far for one ticker / name) ---------- */
+function renderEntityThread(slug) {
+  const name = SLUG_TO_ENTITY.get(slug);
+  const list = ENTITY_INDEX.get(name) || [];
+  const dates = list.map(x => x.d.date);
+  const span = dates.length
+    ? (dates[dates.length - 1] === dates[0] ? prettyDate(dates[0])
+       : `${prettyDate(dates[dates.length - 1])} – ${prettyDate(dates[0])}`) : '';
+  const breakdown = CHANNELS
+    .map(c => ({ c, n: list.filter(x => x.ch.key === c.key).length }))
+    .filter(x => x.n)
+    .map(x => `${esc(x.c.label)} ${x.n}`).join('  ·  ');
+  const rows = list.map(x => {
+    const d = x.d;
+    return `<a class="th-row" href="#/${x.ch.key}/${d.id}">
+        <span class="th-date">${prettyDate(d.date)}${editionSuffixHtml(d.edition)}</span>
+        <span class="th-ch th-ch-${x.ch.key}">${esc(x.ch.label)}</span>
+        <span class="th-head">${esc(d.headline)}</span>
+      </a>`;
+  }).join('');
+
+  document.getElementById('app').innerHTML = `
+    <main id="main" class="wrap" tabindex="-1">
+      ${topbar()}
+      <a class="back" href="#/" data-home>← Home</a>
+      <header class="thread-head">
+        <div class="kicker">Thread</div>
+        <h1 class="th-title">${esc(name)}</h1>
+        <p class="th-meta">${list.length} mention${list.length === 1 ? '' : 's'}${breakdown ? ' · ' + breakdown : ''}${span ? ' · ' + span : ''}</p>
+      </header>
+      <div class="thread-list">${rows || '<p class="empty">No mentions.</p>'}</div>
+    </main>`;
+
+  wireTopbar();
+}
+
 /* ---------- reading view ---------- */
 
 async function renderRead(id) {
@@ -901,6 +1099,7 @@ async function renderRead(id) {
         <h1 class="a-title">${esc(d.headline)}</h1>
         ${d.subtitle ? `<p class="a-sub">${esc(d.subtitle)}</p>` : ''}
         <div class="a-tags">${(d.topics || []).map(t => `<a class="tg" href="#" data-topic="${esc(t)}">${esc(TOPIC_LABEL[t] || cap(t))}</a>`).join('')}</div>
+        ${entityMentionsRow(d)}
         <hr/>
         <div id="body" class="body"><p class="muted">loading…</p></div>
       </article>
