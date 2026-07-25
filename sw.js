@@ -1,7 +1,7 @@
 /* Alpha Funnel service worker — dependency-free, network-FIRST for HTML so an online
    visitor never gets a stale build (the classic PWA trap), cache-first for static assets,
    cache as offline fallback. Bump CACHE to force a clean sweep of old entries. */
-const CACHE = 'af-v1';
+const CACHE = 'af-v2';   // v2: scoreboard + entity-thread excerpts + OS-default theme (2026-07-24)
 const ASSETS = [
   './', './index.html', './feed.xml',
   './favicon-32.png', './favicon-512.png', './apple-touch-icon.png', './manifest.webmanifest'
